@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="msal_clientid">5913dfb1-7576-451c-a7ea-a7c5a3f8682a</string>
+    <string name="msal_scheme">msal5913dfb1-7576-451c-a7ea-a7c5a3f8682a</string>
+    <string name="msal_authority">https://login.microsoftonline.com/tfp/%s/%s</string>
+    <string name="msal_tenant">msalfluttertest.onmicrosoft.com</string>
+</resources>
