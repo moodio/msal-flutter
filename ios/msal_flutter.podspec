@@ -4,7 +4,7 @@
 Pod::Spec.new do |s|
   s.name             = 'msal_flutter'
   s.version          = '0.0.1'
-  s.summary          = 'A new flutter plugin project.'
+  s.summary          = 'MSAL Flutter Wrapper'
   s.description      = <<-DESC
 A new flutter plugin project.
                        DESC
@@ -15,6 +15,7 @@ A new flutter plugin project.
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
+  s.dependency 'MSAL', '~> 0.4.0'
 
   s.ios.deployment_target = '8.0'
 end

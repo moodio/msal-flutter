@@ -20,30 +20,10 @@ class _MyAppState extends State<MyApp> {
     // initPlatformState();
   }
 
-  // // Platform messages are asynchronous, so we initialize in an async method.
-  // Future<void> initPlatformState() async {
-  //   String platformVersion;
-  //   // Platform messages may fail, so we use a try/catch PlatformException.
-  //   try {
-  //     platformVersion = await MsalFlutter.acquireToken(["https://graph.microsoft.com/User.Read"]);
-  //   } on PlatformException {
-  //     platformVersion = 'Failed to get platform version.';
-  //   }
-
-  //   // If the widget was removed from the tree while the asynchronous platform
-  //   // message was in flight, we want to discard the reply rather than calling
-  //   // setState to update our non-existent appearance.
-  //   if (!mounted) return;
-
-  //   setState(() {
-  //     _platformVersion = platformVersion;
-  //   });
-  // }
-
   Future<void> _acquireToken() async{
     String res;
     try{
-      res = await PublicClientApplication.acquireToken(["https://graph.microsoft.com/User.Read"]);
+      res = await PublicClientApplication.acquireToken("https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu", "5913dfb1-7576-451c-a7ea-a7c5a3f8682a", ["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
     } on PlatformException {
       res = "Error getting token";
     }
@@ -57,7 +37,7 @@ class _MyAppState extends State<MyApp> {
     String res;
     try
     {
-      res = await PublicClientApplication.acquireTokenSilent(["https://graph.microsoft.com/User.Read"]);
+      res = await PublicClientApplication.acquireTokenSilent("https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu","5913dfb1-7576-451c-a7ea-a7c5a3f8682a", ["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
     } on PlatformException{
       res = "Error getting token silently!";
     }
