@@ -8,7 +8,7 @@ class PublicClientApplication
   static const MethodChannel _channel =
       const MethodChannel('msal_flutter');
 
-  static Future<String> acquireToken(String authority, String clientId, List<String> scopes) async 
+  static Future<String> acquireToken(String clientId, List<String> scopes, { String authority }) async 
   {
 
     final String token = await _channel.invokeMethod('acquireToken', <String,dynamic>{
@@ -19,7 +19,7 @@ class PublicClientApplication
     return token;
   }
 
-  static Future<String> acquireTokenSilent(String authority, String clientId, List<String> scopes) async {
+  static Future<String> acquireTokenSilent(String clientId, List<String> scopes, { String authority }) async {
     final String token = await _channel.invokeMethod('acquireTokenSilent', <String,dynamic>{
       'scopes': scopes,
       'clientId': clientId,

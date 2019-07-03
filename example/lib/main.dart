@@ -23,7 +23,8 @@ class _MyAppState extends State<MyApp> {
   Future<void> _acquireToken() async{
     String res;
     try{
-      res = await PublicClientApplication.acquireToken("https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu", "5913dfb1-7576-451c-a7ea-a7c5a3f8682a", ["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
+      res = await PublicClientApplication.acquireToken("5913dfb1-7576-451c-a7ea-a7c5a3f8682a", ["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"], 
+                    authority: "https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu");
     } on PlatformException {
       res = "Error getting token";
     }
@@ -37,7 +38,7 @@ class _MyAppState extends State<MyApp> {
     String res;
     try
     {
-      res = await PublicClientApplication.acquireTokenSilent("https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu","5913dfb1-7576-451c-a7ea-a7c5a3f8682a", ["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
+      res = await PublicClientApplication.acquireTokenSilent("5913dfb1-7576-451c-a7ea-a7c5a3f8682a", ["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
     } on PlatformException{
       res = "Error getting token silently!";
     }

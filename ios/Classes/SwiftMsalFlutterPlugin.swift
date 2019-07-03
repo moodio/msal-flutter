@@ -20,10 +20,10 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
 
     //setup the config, using authority if it is set, or defaulting to msal's own implementation if it's not
     if let authorityArg = dict["authority"] as? String 
-    {
+    {     
       //ensure authroity url is valid
       guard let authorityUrl = URL(string: authorityArg) else{
-        result("invalid authority")
+        result.error("invalid authority")
         return
       }
 
@@ -32,7 +32,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
         let authority = try MSALAuthority(url: authorityUrl)
         config = MSALPublicClientApplicationConfig(clientId: clientId, redirectUri: nil, authority: authority)
       } catch let error as NSError {
-        result("error with authority: \(error)")
+        result.error("error with authority: \(error)")
         return
       }
       
@@ -48,7 +48,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
             application.acquireToken(with: interactiveParameters, completionBlock: { (msalresult, error) in
                 
                 guard let authResult = msalresult, error == nil else {
-                    result("unable to authenticate \(error)")
+                    result.error("unable to authenticate \(error)")
                     return
                 }
                 
@@ -59,7 +59,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
             })
         }
         else {
-            result("unable to authenticate")
+            result.error("unable to authenticate")
         }
 
     // switch( call.method ){

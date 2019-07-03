@@ -3,22 +3,23 @@ package uk.co.moodio.msal_flutter
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
-import com.microsoft.identity.client.AuthenticationCallback
-import com.microsoft.identity.client.AuthenticationResult
-import com.microsoft.identity.client.exception.MsalException
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import com.microsoft.identity.client.*
+import com.microsoft.identity.client.exception.MsalException
+import kotlinx.android.synthetic.main.msalflutter.*
 
 @Suppress("SpellCheckingInspection")
 class MsalFlutterPlugin: MethodCallHandler {
     companion object
     {
         lateinit var mainActivity : Activity
-        lateinit var lastResult : Result
+        // lateinit var lastResult : Result
+        lateinit var msalApp: PublicClientApplication
 
         @JvmStatic
         fun registerWith(registrar: Registrar) {
@@ -27,66 +28,87 @@ class MsalFlutterPlugin: MethodCallHandler {
             mainActivity = registrar.activity()
         }
 
-        fun getAuthInteractiveCallback(onComplete: () -> Unit ) : AuthenticationCallback
+        fun getAuthInteractiveCallback(result: Result) : AuthenticationCallback
         {
+            Log.d("MsalFlutter", "Getting the auth callback object")
             return object : AuthenticationCallback
             {
                 @Override
                 override fun onSuccess(authenticationResult : AuthenticationResult){
-                    Log.d("MooAuth", "Authentication successful")
-                    MsalFlutterPlugin.lastResult.success(authenticationResult.accessToken)
-                    onComplete()
+                    Log.d("MsalFlutter", "Authentication successful")
+                    result.success(authenticationResult.accessToken)
                 }
 
                 @Override
                 override fun onError(exception : MsalException)
                 {
-                    Log.d("MooAuth","Error logging in!")
-                    Log.d("MooAuth", exception.message)
-                    onComplete()
+                    Log.d("MsalFlutter","Error logging in!")
+                    Log.d("MsalFlutter", exception.message)
+                    result.error("AUTH_ERROR","Authentication failed", null)
                 }
 
                 @Override
                 override fun onCancel(){
-                    Log.d("MooAuth", "Cancelled")
-                    onComplete()
+                    Log.d("MsalFlutter", "Cancelled")
+                    result.error("CANCELLED","User cancelled", null)
                 }
             }
+        }
+
+        fun handleInteractiveRequestRedirect(requestCode: Int, resultCode: Int, data: Intent?)
+        {
+            msalApp.handleInteractiveRequestRedirect(requestCode, resultCode, data)
         }
     }
 
     override fun onMethodCall(call: MethodCall, result: Result)
     {
-        lastResult = result
+        val scopesArg : ArrayList<String>? = call.argument("scopes")
+        val scopes: Array<String>? = scopesArg?.toTypedArray()
+        val clientId : String? = call.argument("clientId")
+        val authority : String? = call.argument("authority")
 
-        val args = call.arguments as ArrayList<String>
-        val scopes : Array<String> = args.toTypedArray()
+        Log.d("MsalFlutter","Got scopes: $scopes")
+        Log.d("MsalFlutter","Got cleintId: $clientId")
+        Log.d("MsalFlutter","Got authority: $authority")
 
         if(scopes == null){
-            Log.d("MooAuth", "no scope")
-
+            Log.d("MsalFlutter", "no scope")
             result.error("NO_SCOPE","Call must include a scope", null)
             return
         }
-        Log.d("MooAuth","supplied scopes are ${call.arguments}")
-        Log.d("MooAuth", "supplied scopes cast to arraylist as $args")
-        Log.d("MooAuth", "scopes cast to array as ${scopes.joinToString(" - ")}")
 
-        Log.d("MooAuth", "about to call when on call.method ${call.method}")
+        if(clientId == null){
+            Log.d("MsalFlutter","error no clientId")
+            result.error("NO_CLIENTID", "Call must include a clientId", null)
+            return
+        }
 
+        msalApp = getPublicClientApplication(clientId, scopes, authority)
+        
         when(call.method){
-            "acquireToken", "acquireTokenSilent" -> acquireToken(call.method, scopes)
+            "acquireToken", "acquireTokenSilent" -> acquireToken(scopes, result)
             else -> result.notImplemented()
         }
 
     }
 
-    private fun acquireToken(method: String, scopes : Array<String>)
+    
+
+    private fun acquireToken(scopes : Array<String>, result: Result)
     {
-        Log.d("MooAuth", "called acquire token from plug with scopes $scopes")
-        val intent = Intent(mainActivity, MsalFlutterActivity::class.java)
-        intent.putExtra("method", method)
-        intent.putExtra("scopes", scopes)
-        mainActivity.startActivity(intent)
+        Log.d("MsalFlutter", "calling acquireToken")
+        // val onComplete: () -> Unit = { finish() }
+        msalApp.acquireToken(mainActivity, scopes, MsalFlutterPlugin.getAuthInteractiveCallback(result))
+    }
+
+    private fun getPublicClientApplication(clientId: String, scopes: Array<String>, authority: String?) : PublicClientApplication
+    {
+        if(authority!=null){
+            return PublicClientApplication(mainActivity.applicationContext, clientId, authority)
+        } else{
+            return PublicClientApplication(mainActivity.applicationContext, clientId)
+        }
+
     }
 }
