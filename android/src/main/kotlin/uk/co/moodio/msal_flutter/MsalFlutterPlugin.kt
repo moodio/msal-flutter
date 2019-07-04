@@ -93,8 +93,6 @@ class MsalFlutterPlugin: MethodCallHandler {
 
     }
 
-    
-
     private fun acquireToken(scopes : Array<String>, result: Result)
     {
         Log.d("MsalFlutter", "calling acquireToken")
