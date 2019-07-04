@@ -14,17 +14,19 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _output = 'NONE';
 
+  PublicClientApplication pca;
+
   @override
   void initState() {
     super.initState();
     // initPlatformState();
+    pca = PublicClientApplication("5913dfb1-7576-451c-a7ea-a7c5a3f8682a", authority: "https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu");
   }
 
   Future<void> _acquireToken() async{
     String res;
     try{
-      res = await PublicClientApplication.acquireToken("5913dfb1-7576-451c-a7ea-a7c5a3f8682a", ["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"], 
-                    authority: "https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu");
+      res = await pca.acquireToken(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
     } on PlatformException {
       res = "Error getting token";
     }
@@ -38,7 +40,7 @@ class _MyAppState extends State<MyApp> {
     String res;
     try
     {
-      res = await PublicClientApplication.acquireTokenSilent("5913dfb1-7576-451c-a7ea-a7c5a3f8682a", ["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
+      res = await pca.acquireTokenSilent(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
     } on PlatformException{
       res = "Error getting token silently!";
     }

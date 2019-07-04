@@ -8,8 +8,6 @@ import io.flutter.plugins.GeneratedPluginRegistrant
 //-- import the following
 import uk.co.moodio.msal_flutter.MsalFlutterPlugin
 import android.content.Intent
-import android.util.Log
-
 //---
 
 class MainActivity: FlutterActivity() {
@@ -22,7 +20,6 @@ class MainActivity: FlutterActivity() {
 //---
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
       super.onActivityResult(requestCode, resultCode, data)
-      Log.d("MsalAuth","Activity resulted")
       MsalFlutterPlugin.handleInteractiveRequestRedirect(requestCode, resultCode, data)
   }
     //----

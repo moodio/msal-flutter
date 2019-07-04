@@ -28,7 +28,7 @@ class MsalFlutterPlugin: MethodCallHandler {
             mainActivity = registrar.activity()
         }
 
-        fun getAuthInteractiveCallback(result: Result) : AuthenticationCallback
+        fun getAuthCallback(result: Result) : AuthenticationCallback
         {
             Log.d("MsalFlutter", "Getting the auth callback object")
             return object : AuthenticationCallback
@@ -87,7 +87,8 @@ class MsalFlutterPlugin: MethodCallHandler {
         msalApp = getPublicClientApplication(clientId, scopes, authority)
         
         when(call.method){
-            "acquireToken", "acquireTokenSilent" -> acquireToken(scopes, result)
+            "acquireToken" -> acquireToken(scopes, result)
+            "acquireTokenSilent" -> acquireTokenSilent(scopes, result)
             else -> result.notImplemented()
         }
 
@@ -95,9 +96,26 @@ class MsalFlutterPlugin: MethodCallHandler {
 
     private fun acquireToken(scopes : Array<String>, result: Result)
     {
+        while(msalApp.accounts.any()){
+            Log.d("MsalFlutter","Removing old account")
+            msalApp.removeAccount(msalApp.accounts.first())
+        }
         Log.d("MsalFlutter", "calling acquireToken")
         // val onComplete: () -> Unit = { finish() }
-        msalApp.acquireToken(mainActivity, scopes, MsalFlutterPlugin.getAuthInteractiveCallback(result))
+        msalApp.acquireToken(mainActivity, scopes, MsalFlutterPlugin.getAuthCallback(result))
+    }
+
+    private fun acquireTokenSilent(scopes : Array<String>, result: Result)
+    {
+        val size = msalApp.accounts.size
+        Log.d("MsalFlutter", "Accounts $size")
+
+        if(msalApp.accounts.isEmpty()){
+            result.error("NO_ACCOUNT","No account is available to acquire token silently for", null)
+            return
+        }
+        Log.d("MsalFlutter", "calling acquireTokenSilent")
+        msalApp.acquireTokenSilentAsync(scopes, msalApp.accounts[0], MsalFlutterPlugin.getAuthCallback(result))
     }
 
     private fun getPublicClientApplication(clientId: String, scopes: Array<String>, authority: String?) : PublicClientApplication
