@@ -12,30 +12,40 @@ To use MSAL Flutter in your library, first setup an Azure AD B2C tenant and mobi
 
 Import the Msal Flutter package into your flutter application by adding it to the list of dependencies in your pubsec.yaml file.
 
-### Android
+### Android (Kotlin)
 
-In your AndroidManifest.xml file add the following intent filter, replacing the placeholder for your azure b2c application's client id where indicated below.
+This section is mostly copied and modified from [the official android MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-android). Visit the repository for more details.
 
-```<activity
-        android:name="com.microsoft.identity.client.BrowserTabActivity">
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="msal[YOUR-CLIENT-ID]"
-                android:host="auth" />
-        </intent-filter>
-    </activity>```
+1. Give youyr app internet permissions
 
-In your MainActivity.kt add the following function
+```
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+```
 
-1. Import the following libraries
+2. In your AndroidManifest.xml file add the following intent filter, replacing the placeholder for your azure b2c application's client id where indicated below.
 
-```import uk.co.moodio.msal_flutter.MsalFlutterPlugin
+```
+<activity
+    android:name="com.microsoft.identity.client.BrowserTabActivity">
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="msal[YOUR-CLIENT-ID]"
+            android:host="auth" />
+    </intent-filter>
+</activity>
+```
+
+3. In your MainActivity.kt import the following libraries
+
+```
+import uk.co.moodio.msal_flutter.MsalFlutterPlugin
 import android.content.Intent
 ```
 
-2. Add the following function within the MainActivity class
+4. In your MainActivity.kt file add the following function within the MainActivity class
 ```
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
       super.onActivityResult(requestCode, resultCode, data)
@@ -44,7 +54,39 @@ import android.content.Intent
   }
   ```
 
-### iOS
+### iOS (Swift)
+This section is mostly copied and modified from Step 1 from [the official android MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-android). Visit the repository for more details.
 
+
+1. Add your URL scheme for callbacks to your Info.plist file, replacing the placeholder for your azure b2c application's client id where indicated below.
+
+```
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>msauth.[YOUR-CLIENT-ID]</string>
+        </array>
+    </dict>
+</array>
+```
+
+2. Open the app's iOS project in xcode, click on the Runner app to open up the configuration, and under capabilities, expand Keychain Sharing and add the keychain group `com.microsoft.adalcache`
+
+3. Import the MSAL library in your AppDelegate.swift by adding the following at the top of the file
+
+`import MSAL`
+
+4. Add the following function to your AppDelegate class
+
+```
+override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {    
+guard let sourceApplication = options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String else {
+    return false
+}  
+return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: sourceApplication)
+}
+```
 
 ## How To Use
