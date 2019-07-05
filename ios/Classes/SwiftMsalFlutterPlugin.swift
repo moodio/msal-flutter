@@ -23,7 +23,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     {     
       //ensure authroity url is valid
       guard let authorityUrl = URL(string: authorityArg) else{
-        result.error("invalid authority")
+        result(FlutterError(code: "INVALID_AUTHORITY", message: "invalid authority", details: nil))
         return
       }
 
@@ -32,7 +32,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
         let authority = try MSALAuthority(url: authorityUrl)
         config = MSALPublicClientApplicationConfig(clientId: clientId, redirectUri: nil, authority: authority)
       } catch let error as NSError {
-        result.error("error with authority: \(error)")
+        result(FlutterError(code: "INVALID_AUTHORITY", message: "invalid authority - message: \(error)", details: nil))
         return
       }
       
@@ -42,13 +42,36 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
       config = MSALPublicClientApplicationConfig(clientId: clientId)
     }
 
-    if let application = try? MSALPublicClientApplication(configuration: config) {
+
+    switch( call.method ){
+      case "acquireToken": acquireToken(configuration: config, scopes: scopes, result: result)
+      case "acquireTokenSilent": acquireTokenSilent(configuration: config, scopes: scopes, result: result)
+      default: result(FlutterError(code:"INVALID_METHOD", message: "The method called is invalid", details: nil))
+    }
+    
+  }
+
+
+  private func acquireToken(configuration: MSALPublicClientApplicationConfig, scopes: [String], result: @escaping FlutterResult)
+  {
+    if let application = try? MSALPublicClientApplication(configuration: configuration) {
             
+          //delete old accounts
+          do {
+            let cachedAccounts = try application.allAccounts()
+            if !cachedAccounts.isEmpty {
+              print("account exists")
+              try application.remove(cachedAccounts.first!)
+            }
+          } catch {
+            //nothing to do really
+          }
+
            let interactiveParameters = MSALInteractiveTokenParameters(scopes: scopes)
             application.acquireToken(with: interactiveParameters, completionBlock: { (msalresult, error) in
                 
                 guard let authResult = msalresult, error == nil else {
-                    result.error("unable to authenticate \(error)")
+                    result(FlutterError(code: "AUTH_ERROR", message: "Authentication error", details: nil))
                     return
                 }
                 
@@ -59,14 +82,50 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
             })
         }
         else {
-            result.error("unable to authenticate")
+            result(FlutterError(code: "CONFIG_ERROR", message: "Unable to create MSALPublicClientApplication", details: nil))
+                    
         }
+  }
 
-    // switch( call.method ){
-    //   case "acquireToken": result("hi \(scopes)")
-    //   case "acquireTokenSilent": result("hello")
-    //   default: result("the fuck was that?")
-    // }
+  private func acquireTokenSilent(configuration: MSALPublicClientApplicationConfig, scopes: [String], result: @escaping FlutterResult)
+  {
+    if let application = try? MSALPublicClientApplication(configuration: configuration) 
+    {
+      var account : MSALAccount!
+      
+      do{
+        let cachedAccounts = try application.allAccounts()
+        if cachedAccounts.isEmpty {
+          let error = FlutterError(code: "NO_ACCOUNT",  message: "No account is available to acquire token silently for", details: nil)
+          result(error)
+          return
+        }
+        //set account as the first account
+        account = cachedAccounts.first!
+      } 
+      catch{
+        result(FlutterError(code: "NO_ACCOUNT",  message: "Error retrieving an existing account", details: nil))
+      }
+            
+      let silentParameters = MSALSilentTokenParameters(scopes: scopes, account: account)
+
+      application.acquireTokenSilent(with: silentParameters, completionBlock: { (msalresult, error) in
+                
+        guard let authResult = msalresult, error == nil else {
+            result(FlutterError(code: "AUTH_ERROR", message: "Authentication error - \(error)", details: nil))
+            return
+        }
+        
+        // Get access token from result
+        let accessToken = authResult.accessToken
+
+        result(accessToken)
+      })
+    }
+    else {
+        result(FlutterError(code: "CONFIG_ERROR", message: "Unable to create MSALPublicClientApplication", details: nil))
+                
+    }
   }
 
 }

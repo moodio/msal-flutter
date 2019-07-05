@@ -18,14 +18,25 @@ class PublicClientApplication
   /// Acquire a token interactively for the given [scopes]
   Future<String> acquireToken(List<String> scopes) async 
   {
-    final String token = await _channel.invokeMethod('acquireToken', _createMethodcallArguments(scopes));
-    return token;
+    try{
+      final String token = await _channel.invokeMethod('acquireToken', _createMethodcallArguments(scopes));
+      return token;
+    } catch (e)
+    {
+      return "Error getting token";
+    }
   }
 
   /// Acquire a token silently, with no user interaction, for the given [scopes]
   Future<String> acquireTokenSilent(List<String> scopes) async {
-    final String token = await _channel.invokeMethod('acquireTokenSilent', _createMethodcallArguments(scopes));
-    return token; 
+    try{
+      final String token = await _channel.invokeMethod('acquireTokenSilent', _createMethodcallArguments(scopes));
+      return token;
+    } 
+    catch (e)
+    {
+      return "Error getting token - $e";
+    } 
   }
 
   /// Creates the arguments Map used for calling the platform channel methods
