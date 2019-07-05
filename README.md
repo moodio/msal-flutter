@@ -55,7 +55,7 @@ import android.content.Intent
   ```
 
 ### iOS (Swift)
-This section is mostly copied and modified from Step 1 from [the official android MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-android). Visit the repository for more details.
+This section is mostly copied and modified from Step 1 from [the official android MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-objc). Visit the repository for more details.
 
 
 1. Add your URL scheme for callbacks to your Info.plist file, replacing the placeholder for your azure b2c application's client id where indicated below.
@@ -90,3 +90,39 @@ return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: so
 ```
 
 ## How To Use
+
+1. In flutter, import the package
+`import 'package:msal_flutter/msal_flutter.dart';`
+
+
+2. create a new instance of the object, providing your client id, and optionally the authority to authenticate again. 
+
+With default authority:
+
+`PublicClientApplication("YOUR-CLIENT-ID");`
+
+Specifying authroity:
+
+`PublicClientApplication("YOUR-CLIENT-ID", authority: "https://login.microsoftonline.com/tfp/[[YOUR-TENANT]/[YOUR-FLOW]");`
+
+If this is null the default authority will be used, as defined by the relevant MSAL library implementation, which currently is the common endpoint.
+
+3. To retrieve a token interactivity, call the acquireToken function. Note that this function will throw an error on failure and should be surrounded by a try catch block as per the example below
+
+```
+try{
+    String token = await pca.acquireToken(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
+} on PlatformException {
+    res = "Error getting token";
+}
+    ```
+
+4. Once a user has logged in atleast once, to retrieve a token silently call the acquireTokenSilent method. Note that this function will throw an error on failure and should be surrounded by a try catch block as per the example below
+
+```
+try{
+    String token = await pca.acquireTokenSilent(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
+} on PlatformException{
+    res = "Error getting token silently!";
+}
+```
