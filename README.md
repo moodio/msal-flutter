@@ -97,21 +97,21 @@ return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: so
 
 2. create a new instance of the object, providing your client id, and optionally the authority to authenticate again. 
 
-With default authority:
+   With default authority:
 
-`PublicClientApplication("YOUR-CLIENT-ID");`
+   `PublicClientApplication("YOUR-CLIENT-ID");`
 
-Specifying authroity:
+   Specifying authroity:
 
-`PublicClientApplication("YOUR-CLIENT-ID", authority: "https://login.microsoftonline.com/tfp/[[YOUR-TENANT]/[YOUR-FLOW]");`
+   `PublicClientApplication("YOUR-CLIENT-ID", authority: "https://login.microsoftonline.com/tfp/[[YOUR-TENANT]/[YOUR-FLOW]");`
 
-If this is null the default authority will be used, as defined by the relevant MSAL library implementation, which currently is the common endpoint.
+   If this is null the default authority will be used, as defined by the relevant MSAL library implementation, which currently is the common endpoint.
 
 3. To retrieve a token interactivity, call the acquireToken function passing the scopes you wish to acquire the token for. Note that this function will throw an error on failure and should be surrounded by a try catch block as per the example below
 
-**DO NOT** include the openid or user_impersonation scopes which are added by default
+   **DO NOT** include the openid or user_impersonation scopes which are added by default
 
-```
+ ```
 try{
     String token = await pca.acquireToken(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
 } on PlatformException {
@@ -121,7 +121,7 @@ try{
 
 4. Once a user has logged in atleast once, to retrieve a token silently call the acquireTokenSilent function, passing the scopes you wish to acquire the token for. Note that this function will throw an error on failure and should be surrounded by a try catch block as per the example below
 
-**DO NOT** include the openid or user_impersonation scopes which are added by default
+   **DO NOT** include the openid or user_impersonation scopes which are added by default
 
 
 ```
