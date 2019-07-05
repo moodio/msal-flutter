@@ -1,3 +1,3 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+* Initial release includes the basic functionality and api for a PublicClientApplication capable of getting tokens interactivity and silently for a single user account at a time
