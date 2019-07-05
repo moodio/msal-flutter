@@ -10,8 +10,12 @@ To use MSAL Flutter in your library, first setup an Azure AD B2C tenant and mobi
 
 ### Flutter
 
-Import the Msal Flutter package into your flutter application by adding it to the list of dependencies in your pubsec.yaml file.
+Import the [Msal Flutter package](https://pub.dev/packages/msal_flutter/) into your flutter application by adding it to the list of dependencies in your pubsec.yaml file.
 
+```
+dependencies:
+    msal_flutter: ^0.0.1
+```
 ### Android (Kotlin)
 
 This section is mostly copied and modified from [the official android MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-android). Visit the repository for more details.
