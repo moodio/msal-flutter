@@ -9,6 +9,8 @@ class PublicClientApplication
 
   String _clientId, _authority;
 
+  /// Create a new PublicClientApplication authenticating as the given [clientId], 
+  /// optionally against the selected [authority], defaulting to the common
   PublicClientApplication(String clientId, {String authority})
   {
     this._clientId = clientId;
