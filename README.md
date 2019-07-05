@@ -107,7 +107,9 @@ Specifying authroity:
 
 If this is null the default authority will be used, as defined by the relevant MSAL library implementation, which currently is the common endpoint.
 
-3. To retrieve a token interactivity, call the acquireToken function. Note that this function will throw an error on failure and should be surrounded by a try catch block as per the example below
+3. To retrieve a token interactivity, call the acquireToken function passing the scopes you wish to acquire the token for. Note that this function will throw an error on failure and should be surrounded by a try catch block as per the example below
+
+**DO NOT** include the openid or user_impersonation scopes which are added by default
 
 ```
 try{
@@ -115,9 +117,12 @@ try{
 } on PlatformException {
     res = "Error getting token";
 }
-    ```
+```
 
-4. Once a user has logged in atleast once, to retrieve a token silently call the acquireTokenSilent method. Note that this function will throw an error on failure and should be surrounded by a try catch block as per the example below
+4. Once a user has logged in atleast once, to retrieve a token silently call the acquireTokenSilent function, passing the scopes you wish to acquire the token for. Note that this function will throw an error on failure and should be surrounded by a try catch block as per the example below
+
+**DO NOT** include the openid or user_impersonation scopes which are added by default
+
 
 ```
 try{
