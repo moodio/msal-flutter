@@ -1,6 +1,7 @@
 ## 0.0.2
 
 * Removed unused pub dependency
+* Removed unused resources
 
 ## 0.0.1
 

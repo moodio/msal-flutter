@@ -11,7 +11,6 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import com.microsoft.identity.client.*
 import com.microsoft.identity.client.exception.MsalException
-import kotlinx.android.synthetic.main.msalflutter.*
 
 @Suppress("SpellCheckingInspection")
 class MsalFlutterPlugin: MethodCallHandler {
@@ -101,7 +100,6 @@ class MsalFlutterPlugin: MethodCallHandler {
             msalApp.removeAccount(msalApp.accounts.first())
         }
         Log.d("MsalFlutter", "calling acquireToken")
-        // val onComplete: () -> Unit = { finish() }
         msalApp.acquireToken(mainActivity, scopes, MsalFlutterPlugin.getAuthCallback(result))
     }
 

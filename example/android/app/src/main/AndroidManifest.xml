@@ -30,5 +30,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.microsoft.identity.client.BrowserTabActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="msal5913dfb1-7576-451c-a7ea-a7c5a3f8682a"
+                    android:host="auth" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
