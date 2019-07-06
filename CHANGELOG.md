@@ -2,6 +2,7 @@
 
 * Removed unused pub dependency
 * Removed unused resources
+* removed intent filter from plugin which was pointing to example app client id
 
 ## 0.0.1
 
