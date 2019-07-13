@@ -31,8 +31,8 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
       do{
         let authority = try MSALAuthority(url: authorityUrl)
         config = MSALPublicClientApplicationConfig(clientId: clientId, redirectUri: nil, authority: authority)
-      } catch let error as NSError {
-        result(FlutterError(code: "INVALID_AUTHORITY", message: "invalid authority - message: \(error)", details: nil))
+      } catch {
+        result(FlutterError(code: "INVALID_AUTHORITY", message: "invalid authority", details: nil))
         return
       }
       
@@ -112,7 +112,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
       application.acquireTokenSilent(with: silentParameters, completionBlock: { (msalresult, error) in
                 
         guard let authResult = msalresult, error == nil else {
-            result(FlutterError(code: "AUTH_ERROR", message: "Authentication error - \(error)", details: nil))
+            result(FlutterError(code: "AUTH_ERROR", message: "Authentication error", details: nil))
             return
         }
         
