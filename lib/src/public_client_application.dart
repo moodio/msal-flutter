@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'msal_exception.dart';
 
 /// Represents a PublicClientApplication used to authenticate using the implicit flow
 class PublicClientApplication {
@@ -20,8 +21,8 @@ class PublicClientApplication {
       final String token = await _channel.invokeMethod(
           'acquireToken', _createMethodcallArguments(scopes));
       return token;
-    } catch (e) {
-      return "Error getting token";
+    } on PlatformException catch (e) {
+      throw _convertException(e);
     }
   }
 
@@ -31,8 +32,8 @@ class PublicClientApplication {
       final String token = await _channel.invokeMethod(
           'acquireTokenSilent', _createMethodcallArguments(scopes));
       return token;
-    } catch (e) {
-      return "Error getting token - $e";
+    } on PlatformException catch (e) {
+      throw _convertException(e);
     }
   }
 
@@ -48,5 +49,29 @@ class PublicClientApplication {
 
     //return the new map
     return res;
+  }
+
+  MsalException _convertException(PlatformException e)
+  {
+    switch(e.code)
+    {
+      case "CANCELLED":
+        return MsalUserCancelledException();
+      case "NO_SCOPE":
+        return MsalInvalidScopeException();
+      case "NO_ACCOUNT":
+        return MsalNoAccountException();
+      case "NO_CLIENTID":
+        return MsalInvalidConfigurationException("Client Id not set");
+      case "INVALID_AUTHORITY":
+        return MsalInvalidConfigurationException("Invalid authroity set.");
+      case "CONFIG_ERROR":
+        return MsalInvalidConfigurationException("Invalid configuration, please correct your settings and try again");
+      case "AUTH_ERROR":
+      default:
+        return MsalException("Authentication error");
+
+    }
+
   }
 }

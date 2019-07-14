@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:msal_flutter/msal_flutter.dart';
 
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -27,8 +28,16 @@ class _MyAppState extends State<MyApp> {
     String res;
     try{
       res = await pca.acquireToken(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
-    } on PlatformException {
-      res = "Error getting token";
+    } on MsalUserCancelledException {
+      res = "User cancelled";
+    } on MsalNoAccountException {
+      res = "no account";
+    } on MsalInvalidConfigurationException {
+      res = "invalid config";
+    } on MsalInvalidScopeException {
+      res = "Invalid scope";
+    }on MsalException {
+      res = "Error getting token silently!";
     }
 
     setState(() {
@@ -41,9 +50,18 @@ class _MyAppState extends State<MyApp> {
     try
     {
       res = await pca.acquireTokenSilent(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
-    } on PlatformException{
+    } on MsalUserCancelledException {
+      res = "User cancelled";
+    } on MsalNoAccountException {
+      res = "no account";
+    } on MsalInvalidConfigurationException {
+      res = "invalid config";
+    } on MsalInvalidScopeException {
+      res = "Invalid scope";
+    }on MsalException {
       res = "Error getting token silently!";
     }
+
     setState(() {
       _output = res;
     });
