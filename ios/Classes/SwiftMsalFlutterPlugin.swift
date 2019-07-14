@@ -71,8 +71,8 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
             application.acquireToken(with: interactiveParameters, completionBlock: { (msalresult, error) in
                 
                 guard let authResult = msalresult, error == nil else {
-                    result(FlutterError(code: "AUTH_ERROR", message: "Authentication error", details: nil))
-                    return
+                  result(FlutterError(code: "AUTH_ERROR", message: "Authentication error", details: nil))
+                  return
                 }
                 
                 // Get access token from result

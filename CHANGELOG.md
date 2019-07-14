@@ -1,7 +1,10 @@
+## 0.0.5
+* Added new custom exception for returning and handling login errors.
 ## 0.0.4
 * added swift version to podspec
 * added change log for 0.0.3
 * testing changes to ensure easier compatiability with new flutter projects
+* fixes to the readme documentation
 ## 0.0.3
 * Removed errors from displaying in returned error message in anticipation to change error handling to throw exceptions
 

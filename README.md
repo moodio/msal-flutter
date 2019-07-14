@@ -118,8 +118,8 @@ return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: so
  ```
 try{
     String token = await pca.acquireToken(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
-} on PlatformException {
-    res = "Error getting token";
+} on MsalException {
+    //error handling logic here
 }
 ```
 
@@ -131,7 +131,17 @@ try{
 ```
 try{
     String token = await pca.acquireTokenSilent(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
-} on PlatformException{
-    res = "Error getting token silently!";
+} on MsalException{
+    // error handling logic here
 }
 ```
+
+### List of exceptions that can be thrown
+
+| Exception | Description |
+| --------- | ----------- |
+| MsalException | Base exception, inhertied by all other exceptions. Used for general or unknwon errors |
+| MsalInvalidConfigurationException | Configuration error in setting up Public Client Application, such as invalid clientid or authority|
+| MsalInvalidScopeException | Invalid scope or no scope supplied. Currently only supported in android |
+| MsalNoAccountException | User has not previously logged, has logged out or refresh token has expired and and acquire token silently cannot be performed |
+| MsalUserCancelledException | Login request cancelled by user. Only currently supported in Android, for iOS a MsalException is thrown instead|
