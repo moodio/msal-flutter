@@ -70,7 +70,7 @@ This section is mostly copied and modified from Step 1 from [the official androi
     <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-            <string>msauth.[YOUR-CLIENT-ID]</string>
+            <string>msauth.[BUNDLE-ID]</string>
         </array>
     </dict>
 </array>
