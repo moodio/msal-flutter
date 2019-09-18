@@ -51,10 +51,8 @@ class PublicClientApplication {
     return res;
   }
 
-  MsalException _convertException(PlatformException e)
-  {
-    switch(e.code)
-    {
+  MsalException _convertException(PlatformException e) {
+    switch (e.code) {
       case "CANCELLED":
         return MsalUserCancelledException();
       case "NO_SCOPE":
@@ -66,12 +64,11 @@ class PublicClientApplication {
       case "INVALID_AUTHORITY":
         return MsalInvalidConfigurationException("Invalid authroity set.");
       case "CONFIG_ERROR":
-        return MsalInvalidConfigurationException("Invalid configuration, please correct your settings and try again");
+        return MsalInvalidConfigurationException(
+            "Invalid configuration, please correct your settings and try again");
       case "AUTH_ERROR":
       default:
         return MsalException("Authentication error");
-
     }
-
   }
 }

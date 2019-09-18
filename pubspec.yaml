@@ -1,6 +1,6 @@
 name: msal_flutter
 description: A Microsoft Authentication Library wrapper for Android and iOS
-version: 0.0.5
+version: 0.1.0
 author: Mahmoud Swehli <mahmoud@moodio.co.uk>
 homepage: https://github.com/moodio/msal-flutter
 repository: https://github.com/moodio/msal-flutter
