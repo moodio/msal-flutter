@@ -56,7 +56,7 @@ class MsalFlutterPlugin: MethodCallHandler {
 
         fun handleInteractiveRequestRedirect(requestCode: Int, resultCode: Int, data: Intent?)
         {
-            msalApp.handleInteractiveRequestRedirect(requestCode, resultCode, data)
+            msalApp?.handleInteractiveRequestRedirect(requestCode, resultCode, data)
         }
     }
 
