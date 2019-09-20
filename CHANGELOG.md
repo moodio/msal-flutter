@@ -1,3 +1,5 @@
+## 0.1.1
+* Added nullcheck on interactive callback to avoid crashes when other plugins callback before msal is initialized
 ## 0.1.0
 * Released of first beta version.
 * Small bits of formatting cleanup
