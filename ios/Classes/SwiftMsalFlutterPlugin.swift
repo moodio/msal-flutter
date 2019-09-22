@@ -46,6 +46,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     switch( call.method ){
       case "acquireToken": acquireToken(configuration: config, scopes: scopes, result: result)
       case "acquireTokenSilent": acquireTokenSilent(configuration: config, scopes: scopes, result: result)
+      case "logout": logout(configuration: config, result: result)
       default: result(FlutterError(code:"INVALID_METHOD", message: "The method called is invalid", details: nil))
     }
     
@@ -128,4 +129,20 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     }
   }
 
+  private func logout(configuration: MSALPublicClientApplicationConfig, scopes: [String], result: @escaping FlutterResult)
+  {
+    if let application = try? MSALPublicClientApplication(configuration: configuration){
+      let cachedAccounts = try application.allAccounts()
+
+      for account in cachedAccounts {
+        application.remove(account)
+      }
+      result("OK")
+
+    }
+    else {
+      result(FlutterError(code: "CONFIG_ERROR", message: "Unable to create MSALPublicClientApplication", details: nil))
+    }
+
+  }
 }

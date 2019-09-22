@@ -65,6 +65,19 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  Future _logout() async {
+    String res;
+    try{
+      await pca.logout();
+    } on MsalException {
+      res = "Error signing out";
+    }
+
+    setState((){
+      _output = res;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -79,7 +92,9 @@ class _MyAppState extends State<MyApp> {
                 child: Text('AcquireToken()'),),
               RaisedButton( onPressed: _acquireTokenSilently,
                 child: Text('AcquireTokenSilently()')),
-              Text( _output)
+              RaisedButton( onPressed: _logout,
+                child: Text('Logout')),
+              Text( _output),
             ],
           ),
         ),

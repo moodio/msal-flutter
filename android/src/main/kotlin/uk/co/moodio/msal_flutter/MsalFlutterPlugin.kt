@@ -62,6 +62,13 @@ class MsalFlutterPlugin: MethodCallHandler {
 
     override fun onMethodCall(call: MethodCall, result: Result)
     {
+
+        //call signout
+        if(call.method == "logout"){
+            logout()
+            return
+        }
+
         val scopesArg : ArrayList<String>? = call.argument("scopes")
         val scopes: Array<String>? = scopesArg?.toTypedArray()
         val clientId : String? = call.argument("clientId")
@@ -124,5 +131,12 @@ class MsalFlutterPlugin: MethodCallHandler {
             return PublicClientApplication(mainActivity.applicationContext, clientId)
         }
 
+    }
+
+    private fun logout(){
+        for(account in msalApp.accounts)
+        {
+            msalApp.removeAccount(account)
+        }
     }
 }

@@ -37,6 +37,14 @@ class PublicClientApplication {
     }
   }
 
+  Future logout() async {
+    try{
+      await _channel.invokeMethod('logout');
+    } on PlatformException catch (e){
+      throw _convertException(e);
+    }
+  }
+
   /// Creates the arguments Map used for calling the platform channel methods
   Map<String, dynamic> _createMethodcallArguments(List<String> scopes) {
     //create the map with the key properties
