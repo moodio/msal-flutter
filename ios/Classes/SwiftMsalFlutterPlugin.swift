@@ -139,8 +139,8 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
           return
         }
 
-        // let account = cachedAccounts.first!
-        //try application.remove(account)
+        let account = cachedAccounts.first!
+        try application.remove(account)
       
       } 
       catch {
@@ -149,6 +149,6 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     }
     else {
       result(FlutterError(code: "CONFIG_ERROR", message: "Unable to create MSALPublicClientApplication", details: nil))
-
+    }
   }
 }
