@@ -137,12 +137,12 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
         let cachedAccounts = try application.allAccounts()
 
         for account in cachedAccounts {
-          application.remove(account)
+          try application.remove(account)
         }
         result("OK")
       } 
       catch {
-        result(FlutterError(code: "CONFIG_ERROR", message: "Unable get existing accounts", details: nil))
+        result(FlutterError(code: "CONFIG_ERROR", message: "Unable get remove accounts", details: nil))
       }
 
     }
