@@ -129,7 +129,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     }
   }
 
-  private func logout(configuration: MSALPublicClientApplicationConfig, scopes: [String], result: @escaping FlutterResult)
+  private func logout(configuration: MSALPublicClientApplicationConfig, result: @escaping FlutterResult)
   {
     if let application = try? MSALPublicClientApplication(configuration: configuration){
       let cachedAccounts = try application.allAccounts()
