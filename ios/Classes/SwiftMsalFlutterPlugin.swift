@@ -140,7 +140,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
         }
 
         let account = cachedAccounts.first!
-        try application.remove(account)
+        //try application.remove(account)
       
       } 
       catch {
