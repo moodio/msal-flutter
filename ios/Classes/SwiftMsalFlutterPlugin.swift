@@ -132,12 +132,18 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
   private func logout(configuration: MSALPublicClientApplicationConfig, result: @escaping FlutterResult)
   {
     if let application = try? MSALPublicClientApplication(configuration: configuration){
-      let cachedAccounts = try application.allAccounts()
+      
+      do{
+        let cachedAccounts = try application.allAccounts()
 
-      for account in cachedAccounts {
-        application.remove(account)
+        for account in cachedAccounts {
+          application.remove(account)
+        }
+        result("OK")
+      } 
+      catch {
+        result(FlutterError(code: "CONFIG_ERROR", message: "Unable get existing accounts", details: nil))
       }
-      result("OK")
 
     }
     else {
