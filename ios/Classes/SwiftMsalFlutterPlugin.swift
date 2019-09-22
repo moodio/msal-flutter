@@ -130,26 +130,25 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
 
   private func logout(configuration: MSALPublicClientApplicationConfig, result: @escaping FlutterResult)
   {
-    // if let application = try? MSALPublicClientApplication(configuration: configuration){
+    if let application = try? MSALPublicClientApplication(configuration: configuration){
       
-    //   do{
-    //     let cachedAccounts = try application.allAccounts()
+      do{
+        let cachedAccounts = try application.allAccounts()
 
-    //     if cachedAccounts.isEmpty {
-    //       return
-    //     }
+        if cachedAccounts.isEmpty {
+          return
+        }
 
-    //     // let account = cachedAccounts.first!
-    //     //try application.remove(account)
+        // let account = cachedAccounts.first!
+        //try application.remove(account)
       
-    //   } 
-    //   catch {
-    //     result(FlutterError(code: "CONFIG_ERROR", message: "Unable get remove accounts", details: nil))
-    //   }
-    // }
-    // else {
-    //   result(FlutterError(code: "CONFIG_ERROR", message: "Unable to create MSALPublicClientApplication", details: nil))
-    // }
+      } 
+      catch {
+        result(FlutterError(code: "CONFIG_ERROR", message: "Unable get remove accounts", details: nil))
+      }
+    }
+    else {
+      result(FlutterError(code: "CONFIG_ERROR", message: "Unable to create MSALPublicClientApplication", details: nil))
 
   }
 }
