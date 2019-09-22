@@ -1,3 +1,5 @@
+## 0.1.2
+* Added initial logout functionality
 ## 0.1.1
 * Added nullcheck on interactive callback to avoid crashes when other plugins callback before msal is initialized
 ## 0.1.0
