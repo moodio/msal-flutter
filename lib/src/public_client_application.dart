@@ -39,7 +39,7 @@ class PublicClientApplication {
 
   Future logout() async {
     try{
-      await _channel.invokeMethod('logout');
+      await _channel.invokeMethod('logout', _createMethodcallArguments([]));
     } on PlatformException catch (e){
       throw _convertException(e);
     }
