@@ -69,6 +69,7 @@ class _MyAppState extends State<MyApp> {
     String res;
     try{
       await pca.logout();
+      res = "Account removed";
     } on MsalException {
       res = "Error signing out";
     }

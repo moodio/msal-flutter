@@ -136,6 +136,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
         let cachedAccounts = try application.allAccounts()
 
         if cachedAccounts.isEmpty {
+          result(true)
           return
         }
 
@@ -146,6 +147,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
       catch {
         result(FlutterError(code: "CONFIG_ERROR", message: "Unable get remove accounts", details: nil))
       }
+      result(true)
     }
     else {
       result(FlutterError(code: "CONFIG_ERROR", message: "Unable to create MSALPublicClientApplication", details: nil))
