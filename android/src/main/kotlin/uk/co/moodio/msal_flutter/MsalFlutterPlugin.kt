@@ -65,7 +65,7 @@ class MsalFlutterPlugin: MethodCallHandler {
 
         //call signout
         if(call.method == "logout"){
-            logout()
+            logout(result)
             return
         }
 
@@ -133,10 +133,11 @@ class MsalFlutterPlugin: MethodCallHandler {
 
     }
 
-    private fun logout(){
-        for(account in msalApp.accounts)
-        {
-            msalApp.removeAccount(account)
+    private fun logout(result: Result){
+        while(msalApp.accounts.any()){
+            Log.d("MsalFlutter","Removing old account")
+            msalApp.removeAccount(msalApp.accounts.first())
         }
+        result.success(true)
     }
 }
