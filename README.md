@@ -1,3 +1,6 @@
+## WARNING
+Version 1.0.0 is a breaking change, moving to Android-X. Please only update to 1.0.+ if you are ready to migrate your android app.
+
 # MSAL Wrapper Library for Flutter
 Please note this product is in very early alpha release and subject to change and bugs.
 

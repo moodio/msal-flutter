@@ -1,3 +1,6 @@
+## 1.0.0
+* Migrated to Android-X
+* logout now returns
 ## 0.1.2
 * Added initial logout functionality
 ## 0.1.1
