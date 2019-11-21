@@ -1,9 +1,10 @@
 # VERSION 1.0.0+ WARNING
-Version 1.0.0 uses the updated MSAL Libraries and IS NOT compatiable with older versions. Plus update with care!
+Version 1.0.0 uses the updated MSAL Libraries and moves to Android-X. 1.0.0 IS NOT compatiable with older versions. Please only update to 1.0.+ if you are ready to migrate your android app.
 
 It is also not recommended to use the b2clogin authority and endpoints, as old appear to be being deprecated. 
 The new authority template is `https://<tenant>.b2clogin.com/tfp/<tenant>.onmicrosoft.com/<user-flow>`
 e.g. `https://msalfluttertest.b2clogin.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu`
+
 
 # MSAL Wrapper Library for Flutter
 Please note this product is in very early alpha release and subject to change and bugs.
