@@ -60,10 +60,6 @@ class PublicClientApplication {
   }
 
   MsalException _convertException(PlatformException e) {
-    print(e.code);
-    print(e.details);
-    print(e.message);
-    print(e.toString());
     switch (e.code) {
       case "CANCELLED":
         return MsalUserCancelledException();
