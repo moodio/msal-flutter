@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'msal_flutter'
-  s.version          = '1.0.5'
+  s.version          = '1.0.0'
   s.summary          = 'MSAL Flutter Wrapper'
   s.description      = <<-DESC
 A new flutter plugin project.
