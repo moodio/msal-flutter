@@ -67,7 +67,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
           } catch {
             //nothing to do really
           }
-          let viewController: UIViewController = UIApplication.shared.keyWindow!.rootViewController as! UIViewController
+        let viewController: UIViewController = UIApplication.shared.keyWindow!.rootViewController!
           let webViewParameters = MSALWebviewParameters(parentViewController: viewController)
           let interactiveParameters = MSALInteractiveTokenParameters(scopes: scopes, webviewParameters: webViewParameters)
             application.acquireToken(with: interactiveParameters, completionBlock: { (msalresult, error) in
