@@ -1,3 +1,7 @@
+## 1.0.0
+* WARNING Major breaking changes!
+* Updated iOS MSAL package to version ~>1.0.3
+* Added ability to use b2clogin.com, the new preferred authority
 ## 0.1.2
 * Added initial logout functionality
 ## 0.1.1

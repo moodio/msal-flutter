@@ -1,5 +1,6 @@
 name: msal_flutter_example
 description: Demonstrates how to use the msal_flutter plugin.
+version: 1.0.0
 publish_to: 'none'
 
 environment:

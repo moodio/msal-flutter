@@ -15,7 +15,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     let dict = call.arguments! as! NSDictionary
     let scopes = dict["scopes"] as! [String]
     let clientId = dict["clientId"] as! String
-    
+
     var config: MSALPublicClientApplicationConfig
 
     //setup the config, using authority if it is set, or defaulting to msal's own implementation if it's not
@@ -57,22 +57,23 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
   {
     if let application = try? MSALPublicClientApplication(configuration: configuration) {
             
+          application.validateAuthority = false;
           //delete old accounts
           do {
             let cachedAccounts = try application.allAccounts()
             if !cachedAccounts.isEmpty {
-              print("account exists")
               try application.remove(cachedAccounts.first!)
             }
           } catch {
             //nothing to do really
           }
-
-           let interactiveParameters = MSALInteractiveTokenParameters(scopes: scopes)
+          let viewController: UIViewController = UIApplication.shared.keyWindow!.rootViewController as! UIViewController
+          let webViewParameters = MSALWebviewParameters(parentViewController: viewController)
+          let interactiveParameters = MSALInteractiveTokenParameters(scopes: scopes, webviewParameters: webViewParameters)
             application.acquireToken(with: interactiveParameters, completionBlock: { (msalresult, error) in
                 
                 guard let authResult = msalresult, error == nil else {
-                  result(FlutterError(code: "AUTH_ERROR", message: "Authentication error", details: nil))
+                  result(FlutterError(code: "AUTH_ERROR", message: "Authentication error", details: error!.localizedDescription))
                   return
                 }
                 
@@ -92,6 +93,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
   {
     if let application = try? MSALPublicClientApplication(configuration: configuration) 
     {
+      application.validateAuthority = false;
       var account : MSALAccount!
       
       do{
@@ -107,7 +109,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
       catch{
         result(FlutterError(code: "NO_ACCOUNT",  message: "Error retrieving an existing account", details: nil))
       }
-            
+        
       let silentParameters = MSALSilentTokenParameters(scopes: scopes, account: account)
 
       application.acquireTokenSilent(with: silentParameters, completionBlock: { (msalresult, error) in

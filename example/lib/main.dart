@@ -11,6 +11,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  
+  static const String _authority = "https://msalfluttertest.b2clogin.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu";
+  static const String _clientId = "5913dfb1-7576-451c-a7ea-a7c5a3f8682a";
+  
   String _output = 'NONE';
 
   PublicClientApplication pca;
@@ -19,7 +23,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     // initPlatformState();
-    pca = PublicClientApplication("5913dfb1-7576-451c-a7ea-a7c5a3f8682a", authority: "https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu");
+    pca = PublicClientApplication(_clientId, authority: _authority);
   }
 
   Future<void> _acquireToken() async{
@@ -35,7 +39,7 @@ class _MyAppState extends State<MyApp> {
     } on MsalInvalidScopeException {
       res = "Invalid scope";
     }on MsalException {
-      res = "Error getting token silently!";
+      res = "Error getting token. Unspecified reason";
     }
 
     setState(() {
