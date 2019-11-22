@@ -18,9 +18,9 @@ class MainActivity: FlutterActivity() {
 
 //add this method
 //---
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-      super.onActivityResult(requestCode, resultCode, data)
-      MsalFlutterPlugin.handleInteractiveRequestRedirect(requestCode, resultCode, data)
-  }
+  // override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+  //     super.onActivityResult(requestCode, resultCode, data)
+  //     MsalFlutterPlugin.handleInteractiveRequestRedirect(requestCode, resultCode, data)
+  // }
     //----
 }

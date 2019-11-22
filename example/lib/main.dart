@@ -16,13 +16,17 @@ class _MyAppState extends State<MyApp> {
   PublicClientApplication pca;
 
   @override
-  void initState() {
+  Future initState() async{
     super.initState();
     // initPlatformState();
-    pca = PublicClientApplication("5913dfb1-7576-451c-a7ea-a7c5a3f8682a", authority: "https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu");
+    pca = await PublicClientApplication.createPublicClientApplication("5913dfb1-7576-451c-a7ea-a7c5a3f8682a", authority: "https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu");
   }
 
   Future<void> _acquireToken() async{
+    if(pca == null){
+      pca = await PublicClientApplication.createPublicClientApplication("5913dfb1-7576-451c-a7ea-a7c5a3f8682a", authority: "https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu");
+    }
+
     String res;
     try{
       res = await pca.acquireToken(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
@@ -44,6 +48,10 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _acquireTokenSilently() async {
+    if(pca == null){
+      pca = await PublicClientApplication.createPublicClientApplication("5913dfb1-7576-451c-a7ea-a7c5a3f8682a", authority: "https://login.microsoftonline.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu");
+    }
+    
     String res;
     try
     {

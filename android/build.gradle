@@ -33,7 +33,7 @@ android {
     }
     defaultConfig {
         minSdkVersion 21
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [msal_clientid: "5913dfb1-7576-451c-a7ea-a7c5a3f8682a"]
     }
     lintOptions {

@@ -128,6 +128,10 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     }
   }
 
+  private func initialize(clientId: String, authroity: String){
+
+  }
+
   private func logout(configuration: MSALPublicClientApplicationConfig, result: @escaping FlutterResult)
   {
     if let application = try? MSALPublicClientApplication(configuration: configuration){
