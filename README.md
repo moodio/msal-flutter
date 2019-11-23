@@ -1,7 +1,8 @@
 # VERSION 1.0.0+ WARNING
-Version 1.0.0 uses the updated MSAL Libraries and moves to Android-X. 1.0.0 IS NOT compatiable with older versions. Please only update to 1.0.+ if you are ready to migrate your android app.
+Version 1.0.0 uses the updated MSAL Libraries and moves to Android-X. 1.0.0 IS NOT compatiable with older versions. Please only update to 1.0.+ if you are ready to migrate your android app and change how you call the constructor.
+Version 1+ is however required to use MSAL on iOS 13+
 
-It is also not recommended to use the b2clogin authority and endpoints, as old appear to be being deprecated. 
+It is also not recommended to use the b2clogin authority and endpoints, as old appear to be being deprecated and do not seperate saved passwords due to domain being the same for all tenants. 
 The new authority template is `https://<tenant>.b2clogin.com/tfp/<tenant>.onmicrosoft.com/<user-flow>`
 e.g. `https://msalfluttertest.b2clogin.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu`
 
@@ -22,7 +23,7 @@ Import the [Msal Flutter package](https://pub.dev/packages/msal_flutter/) into y
 
 ```
 dependencies:
-    msal_flutter: ^0.1.2
+    msal_flutter: ^1.0.0
 ```
 ### Android (Kotlin)
 

@@ -1,6 +1,9 @@
 ## 1.0.0
-* WARNING Major breaking changes!
+* New API, including requirement to initialize
+* New static async factory method
+* Removal of old constructor
 * Updated iOS MSAL package to version ~>1.0.3
+* Updated Android MSAL package to version 1.0.+
 * Added ability to use b2clogin.com, the new preferred authority
 * Migrated to Android-X
 * logout now returns a value
