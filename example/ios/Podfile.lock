@@ -3,12 +3,12 @@ PODS:
   - MSAL (1.0.3):
     - MSAL/app-lib (= 1.0.3)
   - MSAL/app-lib (1.0.3)
-  - msal_flutter (1.0.5):
+  - msal_flutter (1.0.0):
     - Flutter
     - MSAL (~> 1.0.3)
 
 DEPENDENCIES:
-  - Flutter (from `.symlinks/flutter/ios-release`)
+  - Flutter (from `.symlinks/flutter/ios`)
   - msal_flutter (from `.symlinks/plugins/msal_flutter/ios`)
 
 SPEC REPOS:
@@ -17,14 +17,14 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   Flutter:
-    :path: ".symlinks/flutter/ios-release"
+    :path: ".symlinks/flutter/ios"
   msal_flutter:
     :path: ".symlinks/plugins/msal_flutter/ios"
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   MSAL: 351711995bd31170a2e887941115a3ed17b178e8
-  msal_flutter: 80f8bacd5b05cfcab759e8cb64d1a3293e6eb3d0
+  msal_flutter: 72ba12187cce21c6a39282189431964c71033c80
 
 PODFILE CHECKSUM: 58760ca3c5878cb71ae11bd6eeff33fd4ce06e4f
 

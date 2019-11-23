@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:msal_flutter/msal_flutter.dart';
 
@@ -71,14 +72,23 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future _logout() async {
+    print("called logout");
+    if(pca == null){
+      pca = await PublicClientApplication.createPublicClientApplication(_clientId, authority: _authority);
+    }
+
+    print("pca is not null");
     String res;
     try{
       await pca.logout();
       res = "Account removed";
     } on MsalException {
       res = "Error signing out";
+    } on PlatformException catch (e){
+      res = "some other exception ${e.toString()}";
     }
 
+    print("setting state");
     setState((){
       _output = res;
     });

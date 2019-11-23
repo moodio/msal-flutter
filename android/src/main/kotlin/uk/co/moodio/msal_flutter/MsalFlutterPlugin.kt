@@ -106,23 +106,45 @@ class MsalFlutterPlugin: MethodCallHandler {
     private fun acquireToken(scopes : Array<String>?, result: Result)
     {
         Log.d("MsalFlutter", "acquire token called")
+
+        // check if client has been initialized
+        if(!isClientInitialized()){
+            Log.d("MsalFlutter","Client has not been initialized")
+            Handler(Looper.getMainLooper()).post {
+                result.error("NO_CLIENT", "Client must be initialized before attempting to acquire a token.", null)
+            }
+        }
+
+        //check scopes
         if(scopes == null){
             Log.d("MsalFlutter", "no scope")
             result.error("NO_SCOPE", "Call must include a scope", null)
             return
         }
 
+        //remove old accounts
         while(msalApp.accounts.any()){
             Log.d("MsalFlutter","Removing old account")
             msalApp.removeAccount(msalApp.accounts.first())
         }
 
+        //acquire the token
         msalApp.acquireToken(mainActivity, scopes, getAuthCallback(result))
     }
 
     private fun acquireTokenSilent(scopes : Array<String>?, result: Result)
     {
         Log.d("MsalFlutter", "Called acquire token silent")
+
+        // check if client has been initialized
+        if(!isClientInitialized()){
+            Log.d("MsalFlutter","Client has not been initialized")
+            Handler(Looper.getMainLooper()).post {
+                result.error("NO_CLIENT", "Client must be initialized before attempting to acquire a token.", null)
+            }
+        }
+
+        //check the scopes
         if(scopes == null){
             Log.d("MsalFlutter", "no scope")
             Handler(Looper.getMainLooper()).post {
@@ -131,11 +153,7 @@ class MsalFlutterPlugin: MethodCallHandler {
             return
         }
 
-        Log.d("MsalFlutter", "Scopes exist")
-
-        val size = msalApp.accounts.size
-        Log.d("MsalFlutter", "Accounts $size")
-
+        //ensure accounts exist
         if(msalApp.accounts.isEmpty()){
             Handler(Looper.getMainLooper()).post {
                 result.error("NO_ACCOUNT", "No account is available to acquire token silently for", null)
@@ -143,10 +161,8 @@ class MsalFlutterPlugin: MethodCallHandler {
             return
         }
 
-        Log.d("MsalFlutter", "calling acquireTokenSilent")
+        //acquire the token and return the result
         val res = msalApp.acquireTokenSilent(scopes, msalApp.accounts[0], msalApp.configuration.defaultAuthority.authorityURL.toString())
-
-        Log.d("MsalFlutter","Token acquired")
         Handler(Looper.getMainLooper()).post {
             result.success(res.accessToken)
         }
@@ -154,12 +170,14 @@ class MsalFlutterPlugin: MethodCallHandler {
 
     private fun initialize(clientId: String?, authority: String?, result: Result)
     {
+        //ensure clientid provided
         if(clientId == null){
             Log.d("MsalFlutter","error no clientId")
             result.error("NO_CLIENTID", "Call must include a clientId", null)
             return
         }
 
+        //if already initialized, ensure clientid hasn't changed
         if(isClientInitialized()){
             Log.d("MsalFlutter","Client already initialized.")
             if(msalApp.configuration.clientId == clientId)
@@ -170,7 +188,7 @@ class MsalFlutterPlugin: MethodCallHandler {
             }
         }
 
-        Log.d("MsalFlutter","Not initialized. Initializing client")
+        // if authority is set, create client using it, otherwise use default
         if(authority != null){
             Log.d("MsalFlutter", "Authority not null")
             Log.d("MsalFlutter", "Creating with: $clientId - $authority")
