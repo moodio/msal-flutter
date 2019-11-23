@@ -1,3 +1,5 @@
+## 1.0.0+1
+* Added some more information to readme for clarity
 ## 1.0.0
 * New API, including requirement to initialize
 * New static async factory method
