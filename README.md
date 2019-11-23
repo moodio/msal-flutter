@@ -162,7 +162,10 @@ try{
 | Exception | Description |
 | --------- | ----------- |
 | MsalException | Base exception, inhertied by all other exceptions. Used for general or unknwon errors |
+| MsalChangedClientIdException | Attempt to initialize a second client id with a different clientid |
+| MsalInitializationException | Error initializing client. Most likely do to incorrect configuration files |
 | MsalInvalidConfigurationException | Configuration error in setting up Public Client Application, such as invalid clientid or authority|
 | MsalInvalidScopeException | Invalid scope or no scope supplied. Currently only supported in android |
 | MsalNoAccountException | User has not previously logged, has logged out or refresh token has expired and and acquire token silently cannot be performed |
+| MsalUninitializedException | Client method called before client has been initialized |
 | MsalUserCancelledException | Login request cancelled by user. Only currently supported in Android, for iOS a MsalException is thrown instead|

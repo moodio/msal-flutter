@@ -82,6 +82,12 @@ class PublicClientApplication {
       case "CONFIG_ERROR":
         return MsalInvalidConfigurationException(
             "Invalid configuration, please correct your settings and try again");
+      case "NO_CLIENT":
+        return MsalUninitializedException();
+      case "CHANGED_CLIENTID":
+        return MsalChangedClientIdException();
+      case "INIT_ERROR":
+        return MsalInitializationException();
       case "AUTH_ERROR":
       default:
         return MsalException("Authentication error");
