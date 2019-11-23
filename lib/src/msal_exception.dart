@@ -4,7 +4,7 @@ class MsalException implements Exception {
 }
 
 class MsalChangedClientIdException extends MsalException{
-  MsalChangedClientIdException() : super("Cannot create a client with a new client ID. Only 1 client id supported")
+  MsalChangedClientIdException() : super("Cannot create a client with a new client ID. Only 1 client id supported");
 }
 
 class MsalUserCancelledException extends MsalException {
@@ -29,5 +29,5 @@ class MsalInitializationException extends MsalException {
 }
 
 class MsalUninitializedException extends MsalException{
-  MsalUninitializedException() : super("Client not initialized. Client must be initialized before attempting to use")
+  MsalUninitializedException() : super("Client not initialized. Client must be initialized before attempting to use");
 }
