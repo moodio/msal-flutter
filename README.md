@@ -27,7 +27,7 @@ dependencies:
 ```
 ### Android (Kotlin)
 
-This section is mostly copied and modified from [the official android MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-android). Visit the repository for more details.
+This section is mostly copied and modified from [the official android MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-android). Visit the repository for more details and information on how to use it with authentication brokers.
 
 1. Give youyr app internet permissions
 
@@ -36,7 +36,8 @@ This section is mostly copied and modified from [the official android MSAL libra
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 ```
 
-2. In your AndroidManifest.xml file add the following intent filter, replacing the placeholder for your azure b2c application's client id where indicated below.
+2. In your AndroidManifest.xml file add the following intent filter, replacing the placeholder <YOUR-CLIENT-ID> for your azure b2c application's client id where indicated below. 
+The default redirect url is msal<YOUR-CLIENT-ID>://auth however this can now be changed for android. If you have changed your redirect url to something else, please set the below activity settings to match your own.
 
 ```
 <activity
@@ -45,27 +46,18 @@ This section is mostly copied and modified from [the official android MSAL libra
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="msal[YOUR-CLIENT-ID]"
+        <data android:scheme="msal<YOUR-CLIENT-ID>"
             android:host="auth" />
     </intent-filter>
 </activity>
 ```
 
-3. In your MainActivity.kt import the following libraries
+3. Copy the [msal_default_config](https://raw.githubusercontent.com/moodio/msal-flutter/develop/doc/templates/msal_default_config.json) from this repository (or make your own if you know what you're doing) and place it into your flutter apps android/src/main/res/raw folder.
+By default/tradition the redirect URL is msal<YOUR-CLIENT-ID>://auth for android, however if you have selected a different redirect url please enter that. Note the redirect URL scheme and host combination MUST BE UNIQUE to your application.
 
-```
-import uk.co.moodio.msal_flutter.MsalFlutterPlugin
-import android.content.Intent
-```
+*WARNING* DO NOT set the application type to single. the MSAL Flutter wrapper is only compatiable with the newer multiple account configuration.
 
-4. In your MainActivity.kt file add the following function within the MainActivity class
-```
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-      super.onActivityResult(requestCode, resultCode, data)
-      Log.d("MsalAuth","Activity resulted")
-      MsalFlutterPlugin.handleInteractiveRequestRedirect(requestCode, resultCode, data)
-  }
-  ```
+For an example see the example apps usage [here](https://github.com/moodio/msal-flutter/blob/develop/example/android/app/src/main/res/raw/msal_default_config.json)
 
 ### iOS (Swift)
 This section is mostly copied and modified from Step 1 from [the official android MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-objc). Visit the repository for more details.

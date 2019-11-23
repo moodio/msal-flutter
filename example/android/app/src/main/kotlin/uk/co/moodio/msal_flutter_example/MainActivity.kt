@@ -4,11 +4,6 @@ import android.os.Bundle
 import io.flutter.app.FlutterActivity
 import io.flutter.plugins.GeneratedPluginRegistrant
 
-//-- import the following
-import uk.co.moodio.msal_flutter.MsalFlutterPlugin
-import android.content.Intent
-//---
-
 class MainActivity: FlutterActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
