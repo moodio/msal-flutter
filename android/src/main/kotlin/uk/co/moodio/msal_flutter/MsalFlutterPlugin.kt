@@ -1,7 +1,10 @@
 package uk.co.moodio.msal_flutter
 
 import android.app.Activity
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import androidx.annotation.WorkerThread
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -10,7 +13,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import com.microsoft.identity.client.*
 import com.microsoft.identity.client.exception.MsalException
 import com.microsoft.identity.client.IPublicClientApplication
-
+import com.microsoft.identity.client.PublicClientApplicationConfigurationFactory.initializeConfiguration
 
 
 @Suppress("SpellCheckingInspection")
@@ -24,6 +27,7 @@ class MsalFlutterPlugin: MethodCallHandler {
 
         @JvmStatic
         fun registerWith(registrar: Registrar) {
+            Log.d("MsalFlutter","Registering plugin")
             val channel = MethodChannel(registrar.messenger(), "msal_flutter")
             channel.setMethodCallHandler(MsalFlutterPlugin())
             mainActivity = registrar.activity()
@@ -37,18 +41,19 @@ class MsalFlutterPlugin: MethodCallHandler {
                 override fun onSuccess(authenticationResult : IAuthenticationResult){
                     Log.d("MsalFlutter", "Authentication successful")
                     result.success(authenticationResult.accessToken)
+
                 }
 
                 override fun onError(exception : MsalException)
                 {
                     Log.d("MsalFlutter","Error logging in!")
                     Log.d("MsalFlutter", exception.message)
-                    result.error("AUTH_ERROR","Authentication failed", exception.localizedMessage)
+                    result.error("AUTH_ERROR", "Authentication failed", exception.localizedMessage)
                 }
 
                 override fun onCancel(){
                     Log.d("MsalFlutter", "Cancelled")
-                    result.error("CANCELLED","User cancelled", null)
+                    result.error("CANCELLED", "User cancelled", null)
                 }
             }
         }
@@ -59,12 +64,20 @@ class MsalFlutterPlugin: MethodCallHandler {
             return object : IPublicClientApplication.ApplicationCreatedListener
             {
                 override fun onCreated(application: IPublicClientApplication) {
+
+                    Log.d("MsalFlutter", "Created successfully")
                     msalApp = application as MultipleAccountPublicClientApplication
-                   result.success(true)
+                    Handler(Looper.getMainLooper()).post {
+                        result.success(true)
+                    }
                 }
 
                 override fun onError(exception: MsalException?) {
-                    result.error("INIT_ERROR", "Error initializting client", exception?.localizedMessage)
+
+                    Log.d("MsalFlutter", "Initialize error")
+                    Handler(Looper.getMainLooper()).post {
+                        result.error("INIT_ERROR", "Error initializting client", exception?.localizedMessage)
+                    }
                 }
             }
         }
@@ -84,8 +97,8 @@ class MsalFlutterPlugin: MethodCallHandler {
         when(call.method){
             "logout" -> logout(result)
             "initialize" -> initialize(clientId, authority, result)
-            "acquireToken" -> acquireToken(scopes, result)
-            "acquireTokenSilent" -> acquireTokenSilent(scopes, result)
+            "acquireToken" -> Thread(Runnable {acquireToken(scopes, result)}).start()
+            "acquireTokenSilent" -> Thread(Runnable {acquireTokenSilent(scopes, result)}).start()
             else -> result.notImplemented()
         }
 
@@ -93,9 +106,12 @@ class MsalFlutterPlugin: MethodCallHandler {
 
     private fun acquireToken(scopes : Array<String>?, result: Result)
     {
+        Log.d("MsalFlutter", "acquire token called")
         if(scopes == null){
             Log.d("MsalFlutter", "no scope")
-            result.error("NO_SCOPE","Call must include a scope", null)
+
+            result.error("NO_SCOPE", "Call must include a scope", null)
+
             return
         }
 
@@ -104,30 +120,42 @@ class MsalFlutterPlugin: MethodCallHandler {
             msalApp.removeAccount(msalApp.accounts.first())
         }
 
-        Log.d("MsalFlutter", "calling acquireToken")
+        val ruri = msalApp.configuration.redirectUri
+        Log.d("MsalFlutter", "calling acquireToken with redirect uri $ruri")
+
         msalApp.acquireToken(mainActivity, scopes, getAuthCallback(result))
+
     }
 
     private fun acquireTokenSilent(scopes : Array<String>?, result: Result)
     {
+        Log.d("MsalFlutter", "Called acquire token silent")
         if(scopes == null){
             Log.d("MsalFlutter", "no scope")
-            result.error("NO_SCOPE","Call must include a scope", null)
+            result.error("NO_SCOPE", "Call must include a scope", null)
             return
         }
+
+
+        Log.d("MsalFlutter", "Scopes exist")
 
         val size = msalApp.accounts.size
         Log.d("MsalFlutter", "Accounts $size")
 
         if(msalApp.accounts.isEmpty()){
-            result.error("NO_ACCOUNT","No account is available to acquire token silently for", null)
+            result.error("NO_ACCOUNT", "No account is available to acquire token silently for", null)
             return
         }
 
         Log.d("MsalFlutter", "calling acquireTokenSilent")
+        val account = msalApp.accounts[0]
+        val res = msalApp.acquireTokenSilent(scopes, account, msalApp.configuration.defaultAuthority.authorityURL.toString())
 
-        val res = msalApp.acquireTokenSilent(scopes, msalApp.accounts[0], msalApp.configuration.defaultAuthority.authorityURL.toString())
-        result.success(res.accessToken)
+        Log.d("MsalFlutter","Token acquired")
+        Handler(Looper.getMainLooper()).post {
+            result.success(res.accessToken)
+        }
+
     }
 
     private fun initialize(clientId: String?, authority: String?, result: Result)
@@ -150,8 +178,11 @@ class MsalFlutterPlugin: MethodCallHandler {
 
         Log.d("MsalFlutter","Not initialized. Initializing client")
         if(authority != null){
+            Log.d("MsalFlutter", "Authority not null")
+            Log.d("MsalFlutter", "Creating with: $clientId - $authority")
             PublicClientApplication.create(mainActivity.applicationContext, clientId, authority, getApplicationCreatedListener(result))
         }else{
+            Log.d("MsalFlutter", "Authority null")
             PublicClientApplication.create(mainActivity.applicationContext, clientId, getApplicationCreatedListener(result))
         }
     }
@@ -164,4 +195,8 @@ class MsalFlutterPlugin: MethodCallHandler {
         }
         result.success(true)
     }
+
+//    private fun _setupConfiguration() : PublicClientApplicationConfiguration{
+//        return initializeConfiguration(mainActivity.applicationContext, R.raw .msal_flutter_config)
+//    }
 }

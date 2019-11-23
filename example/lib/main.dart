@@ -19,11 +19,6 @@ class _MyAppState extends State<MyApp> {
 
   PublicClientApplication pca;
 
-  @override
-  Future initState() async{
-    super.initState();
-  }
-
   Future<void> _acquireToken() async{
     if(pca == null){
       pca = await PublicClientApplication.createPublicClientApplication(_clientId, authority: _authority);
