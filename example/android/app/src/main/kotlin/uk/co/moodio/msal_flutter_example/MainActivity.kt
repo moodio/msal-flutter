@@ -1,7 +1,6 @@
 package uk.co.moodio.msal_flutter_example
 
 import android.os.Bundle
-
 import io.flutter.app.FlutterActivity
 import io.flutter.plugins.GeneratedPluginRegistrant
 
@@ -15,12 +14,4 @@ class MainActivity: FlutterActivity() {
     super.onCreate(savedInstanceState)
     GeneratedPluginRegistrant.registerWith(this)
   }
-
-//add this method
-//---
-  // override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-  //     super.onActivityResult(requestCode, resultCode, data)
-  //     MsalFlutterPlugin.handleInteractiveRequestRedirect(requestCode, resultCode, data)
-  // }
-    //----
 }
