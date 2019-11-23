@@ -104,6 +104,12 @@ return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: so
 }
 ```
 
+6. Trouble shooting
+It is possible that you may get errors such as with the minimum iOS deployment being too low. MSAL Flutter requires a minimum iOS version of 11.0
+To set this, add `platform :ios, '11.0'` on the first line of your Podfile file which can be found in the root of your ios folder.
+
+When upgrading from older versions of MSAL Flutter, you might also need to delete your Podfile.lock file, which is also in the iOS folder.
+
 ## How To Use
 
 1. In flutter, import the package
