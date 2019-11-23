@@ -11,17 +11,18 @@ class PublicClientApplication {
   /// Create a new PublicClientApplication authenticating as the given [clientId],
   /// optionally against the selected [authority], defaulting to the common
   PublicClientApplication(String clientId, {String authority}) {
-    throw Exception("Direct call is no longer supported in v1.0, please use static method createPublicClientApplication");
+    throw Exception(
+        "Direct call is no longer supported in v1.0, please use static method createPublicClientApplication");
   }
 
-  PublicClientApplication._create(String clientId, {String authority})
-  {
+  PublicClientApplication._create(String clientId, {String authority}) {
     _clientId = clientId;
     _authority = authority;
   }
 
-  static Future<PublicClientApplication> createPublicClientApplication(String clientId, {String authority}) async
-  {
+  static Future<PublicClientApplication> createPublicClientApplication(
+      String clientId,
+      {String authority}) async {
     var res = PublicClientApplication._create(clientId, authority: authority);
     await res._initialize();
     return res;
@@ -29,14 +30,12 @@ class PublicClientApplication {
 
   /// Acquire a token interactively for the given [scopes]
   Future<String> acquireToken(List<String> scopes) async {
-
     //create the arguments
     var res = <String, dynamic>{'scopes': scopes};
 
     //call platform
     try {
-      final String token = await _channel.invokeMethod(
-          'acquireToken', res);
+      final String token = await _channel.invokeMethod('acquireToken', res);
       return token;
     } on PlatformException catch (e) {
       throw _convertException(e);
@@ -45,13 +44,13 @@ class PublicClientApplication {
 
   /// Acquire a token silently, with no user interaction, for the given [scopes]
   Future<String> acquireTokenSilent(List<String> scopes) async {
-    
     //create the arguments
     var res = <String, dynamic>{'scopes': scopes};
 
     //call platform
     try {
-      final String token = await _channel.invokeMethod('acquireTokenSilent', res);
+      final String token =
+          await _channel.invokeMethod('acquireTokenSilent', res);
       return token;
     } on PlatformException catch (e) {
       throw _convertException(e);
@@ -59,13 +58,12 @@ class PublicClientApplication {
   }
 
   Future logout() async {
-    try{
+    try {
       await _channel.invokeMethod('logout', <String, dynamic>{});
-    } on PlatformException catch (e){
+    } on PlatformException catch (e) {
       throw _convertException(e);
     }
   }
-
 
   MsalException _convertException(PlatformException e) {
     switch (e.code) {
@@ -95,16 +93,16 @@ class PublicClientApplication {
   }
 
   //initialize the main client platform side
-  Future _initialize() async{
+  Future _initialize() async {
     var res = <String, dynamic>{'clientId': this._clientId};
     //if authority has been set, add it aswell
     if (this._authority != null) {
       res["authority"] = this._authority;
     }
 
-    try{
+    try {
       await _channel.invokeMethod('initialize', res);
-    } on PlatformException catch (e){
+    } on PlatformException catch (e) {
       throw _convertException(e);
     }
   }

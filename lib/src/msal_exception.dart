@@ -3,8 +3,10 @@ class MsalException implements Exception {
   MsalException(this.errorMessage);
 }
 
-class MsalChangedClientIdException extends MsalException{
-  MsalChangedClientIdException() : super("Cannot create a client with a new client ID. Only 1 client id supported");
+class MsalChangedClientIdException extends MsalException {
+  MsalChangedClientIdException()
+      : super(
+            "Cannot create a client with a new client ID. Only 1 client id supported");
 }
 
 class MsalUserCancelledException extends MsalException {
@@ -25,9 +27,13 @@ class MsalInvalidScopeException extends MsalException {
 }
 
 class MsalInitializationException extends MsalException {
-  MsalInitializationException() : super("Error initializing client. Please ensure correctly configuration supplied");
+  MsalInitializationException()
+      : super(
+            "Error initializing client. Please ensure correctly configuration supplied");
 }
 
-class MsalUninitializedException extends MsalException{
-  MsalUninitializedException() : super("Client not initialized. Client must be initialized before attempting to use");
+class MsalUninitializedException extends MsalException {
+  MsalUninitializedException()
+      : super(
+            "Client not initialized. Client must be initialized before attempting to use");
 }
