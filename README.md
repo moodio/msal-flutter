@@ -52,7 +52,7 @@ The default redirect url is msal<YOUR-CLIENT-ID>://auth however this can now be 
 </activity>
 ```
 
-3. Copy the [msal_default_config](https://raw.githubusercontent.com/moodio/msal-flutter/develop/doc/templates/msal_default_config.json) from this repository (or make your own if you know what you're doing) and place it into your flutter apps android/src/main/res/raw folder.
+3. Copy the [msal_default_config](https://raw.githubusercontent.com/moodio/msal-flutter/master/doc/templates/msal_default_config.json) from this repository (or make your own if you know what you're doing) and place it into your flutter apps android/src/main/res/raw folder.
 By default/tradition the redirect URL is msal<YOUR-CLIENT-ID>://auth for android, however if you have selected a different redirect url please enter that. Note the redirect URL scheme and host combination MUST BE UNIQUE to your application.
 
 *WARNING* DO NOT set the application type to single. the MSAL Flutter wrapper is only compatiable with the newer multiple account configuration.
@@ -77,13 +77,23 @@ This section is mostly copied and modified from Step 1 from [the official androi
 </array>
 ```
 
-2. Open the app's iOS project in xcode, click on the Runner app to open up the configuration, and under capabilities, expand Keychain Sharing and add the keychain group `com.microsoft.adalcache`
+2. Add LSApplicationQueriesSchemes to allow making call to Microsoft Authenticator if installed (For Authentication broker)
 
-3. Import the MSAL library in your AppDelegate.swift by adding the following at the top of the file
+```
+<key>LSApplicationQueriesSchemes</key>
+<array>
+	<string>msauthv2</string>
+	<string>msauthv3</string>
+</array>
+```
+
+3. Open the app's iOS project in xcode, click on the Runner app to open up the configuration, and under capabilities, expand Keychain Sharing and add the keychain group `com.microsoft.adalcache`
+
+4. Import the MSAL library in your AppDelegate.swift by adding the following at the top of the file
 
 `import MSAL`
 
-4. Add the following function to your AppDelegate class
+5. Add the following function to your AppDelegate class
 
 ```
 override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {    
@@ -100,15 +110,15 @@ return MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: so
 `import 'package:msal_flutter/msal_flutter.dart';`
 
 
-2. create a new instance of the object, providing your client id, and optionally the authority to authenticate again. 
+2. Use the static factory method createPublicClientApplication to asyncronously create a new instance of the object, by providing your client id, and optionally the authority to authenticate again. 
 
    With default authority:
 
-   `PublicClientApplication("YOUR-CLIENT-ID");`
+   `var pca = await PublicClientApplication.createPublicClientApplication("YOUR-CLIENT-ID");`
 
    Specifying authroity:
 
-   `PublicClientApplication("YOUR-CLIENT-ID", authority: "https://login.microsoftonline.com/tfp/[[YOUR-TENANT]/[YOUR-FLOW]");`
+   `var pca = await PublicClientApplication.createPublicClientApplication("YOUR-CLIENT-ID", authority: "https://<tenant>.b2clogin.com/tfp/<tenant>.onmicrosoft.com/<user-flow>");`
 
    If this is null the default authority will be used, as defined by the relevant MSAL library implementation, which currently is the common endpoint.
 
@@ -132,6 +142,16 @@ try{
 ```
 try{
     String token = await pca.acquireTokenSilent(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
+} on MsalException{
+    // error handling logic here
+}
+```
+
+5. To logout, call the logout method
+
+```
+try{
+    await pca.logout();
 } on MsalException{
     // error handling logic here
 }
