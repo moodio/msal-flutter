@@ -7,6 +7,7 @@
 * Added ability to use b2clogin.com, the new preferred authority
 * Migrated to Android-X
 * logout now returns a value
+* Now compatiable with iOS 13
 ## 0.1.2
 * Added initial logout functionality
 ## 0.1.1
