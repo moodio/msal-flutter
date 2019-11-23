@@ -36,8 +36,8 @@ This section is mostly copied and modified from [the official android MSAL libra
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 ```
 
-2. In your AndroidManifest.xml file add the following intent filter, replacing the placeholder <YOUR-CLIENT-ID> for your azure b2c application's client id where indicated below. 
-The default redirect url is msal<YOUR-CLIENT-ID>://auth however this can now be changed for android. If you have changed your redirect url to something else, please set the below activity settings to match your own.
+2. In your AndroidManifest.xml file add the following intent filter, replacing the placeholder \<YOUR-CLIENT-ID\> for your azure b2c application's client id where indicated below. 
+The default redirect url is msal\<YOUR-CLIENT-ID\>://auth however this can now be changed for android. If you have changed your redirect url to something else, please set the below activity settings to match your own.
 
 ```
 <activity
@@ -53,7 +53,7 @@ The default redirect url is msal<YOUR-CLIENT-ID>://auth however this can now be 
 ```
 
 3. Copy the [msal_default_config](https://raw.githubusercontent.com/moodio/msal-flutter/master/doc/templates/msal_default_config.json) from this repository (or make your own if you know what you're doing) and place it into your flutter apps android/src/main/res/raw folder.
-By default/tradition the redirect URL is msal<YOUR-CLIENT-ID>://auth for android, however if you have selected a different redirect url please enter that. Note the redirect URL scheme and host combination MUST BE UNIQUE to your application.
+By default/tradition the redirect URL is msal\<YOUR-CLIENT-ID\>://auth for android, however if you have selected a different redirect url please enter that. Note the redirect URL scheme and host combination MUST BE UNIQUE to your application.
 
 *WARNING* DO NOT set the application type to single. the MSAL Flutter wrapper is only compatiable with the newer multiple account configuration.
 
