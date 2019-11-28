@@ -6,6 +6,7 @@ It is also not recommended to use the login.microsoftonline.com authority and en
 The new authority template is `https://<tenant>.b2clogin.com/tfp/<tenant>.onmicrosoft.com/<user-flow>`
 e.g. `https://msalfluttertest.b2clogin.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu`
 
+For troubleshooting known bugs in the new build, please scroll down to the bottom of the page where all bugs and fixes we find will be noted.
 
 # MSAL Wrapper Library for Flutter
 Please note this product is in very early alpha release and subject to change and bugs.
@@ -53,11 +54,13 @@ The default redirect url is msal\<YOUR-CLIENT-ID\>://auth however this can now b
 ```
 
 3. Copy the [msal_default_config](https://raw.githubusercontent.com/moodio/msal-flutter/master/doc/templates/msal_default_config.json) from this repository (or make your own if you know what you're doing) and place it into your flutter apps android/src/main/res/raw folder.
-By default/tradition the redirect URL is msal\<YOUR-CLIENT-ID\>://auth for android, however if you have selected a different redirect url please enter that. Note the redirect URL scheme and host combination MUST BE UNIQUE to your application.
+By default/tradition the redirect URL is msal\<YOUR-CLIENT-ID\>://auth for android, however if you have selected a different redirect url please enter that. Note the redirect URL scheme and host combination MUST BE UNIQUE to your application and if you do change it it must also be changed in the activity intent filter in step 2.
 
 *WARNING* DO NOT set the application type to single. the MSAL Flutter wrapper is only compatiable with the newer multiple account configuration.
 
 For an example see the example apps usage [here](https://github.com/moodio/msal-flutter/blob/develop/example/android/app/src/main/res/raw/msal_default_config.json)
+
+4. The minimum SDK version must be atleast 21. If you are starting from a new flutter app with the default 16 version, please change this in your gradle settings which can be found in `android > app > build.gradle` file, and then under the object android:defaultConfig>minSdkVersion
 
 ### iOS (Swift)
 This section is mostly copied and modified from Step 1 from [the official android MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-objc). Visit the repository for more details.
@@ -175,3 +178,10 @@ try{
 | MsalNoAccountException | User has not previously logged, has logged out or refresh token has expired and and acquire token silently cannot be performed |
 | MsalUninitializedException | Client method called before client has been initialized |
 | MsalUserCancelledException | Login request cancelled by user. Only currently supported in Android, for iOS a MsalException is thrown instead|
+
+
+# Trouble Shooting
+
+Please note there is currently an issue that seems to occur with Android which uses slightly older versions of kotlin.
+If you get the error when attemtping to acquire a token, along the lines of "static member msalApp not found", goto your app's android folder, open the build.gradle file, and on the second line change the version of kotlin from 1.3.10 to 1.3.50. For more information take a look at issue #4.
+A fix will be implemented shortly.
