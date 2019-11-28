@@ -28,6 +28,8 @@ dependencies:
 ```
 ### Android (Kotlin)
 
+NOTE: Due to a [known kotlin issue kotlin](https://youtrack.jetbrains.com/issue/KT-21862) please ensure you are using Kotlin version 1.3.50 or later. To set this, goto your app's android folder, open the build.gradle file, and under buildscript:ext.kotlin_version change the version to 1.3.50 or later.
+
 This section is mostly copied and modified from [the official android MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-android). Visit the repository for more details and information on how to use it with authentication brokers.
 
 1. Give youyr app internet permissions
