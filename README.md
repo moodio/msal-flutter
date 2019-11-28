@@ -24,7 +24,7 @@ Import the [Msal Flutter package](https://pub.dev/packages/msal_flutter/) into y
 
 ```
 dependencies:
-    msal_flutter: ^1.0.0
+    msal_flutter: ^1.0.0+2
 ```
 ### Android (Kotlin)
 
