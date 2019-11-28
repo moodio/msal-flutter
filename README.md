@@ -65,7 +65,7 @@ For an example see the example apps usage [here](https://github.com/moodio/msal-
 4. The minimum SDK version must be atleast 21. If you are starting from a new flutter app with the default 16 version, please change this in your gradle settings which can be found in `android > app > build.gradle` file, and then under the object android:defaultConfig>minSdkVersion
 
 ### iOS (Swift)
-This section is mostly copied and modified from Step 1 from [the official android MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-objc). Visit the repository for more details.
+This section is mostly copied and modified from Step 1 from [the official iOS MSAL library github repository](https://github.com/AzureAD/microsoft-authentication-library-for-objc). Visit the repository for more details.
 
 
 1. Add your URL scheme for callbacks to your Info.plist file, replacing the placeholder for your azure b2c application's client id where indicated below.
