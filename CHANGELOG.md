@@ -1,3 +1,5 @@
+## 1.0.0+3
+* Added specific MSAL Android package version to fix crashing issue caused by updated versions
 ## 1.0.0+2
 * Updates to readme in regards to kotlin static field issues.
 ## 1.0.0+1
