@@ -12,6 +12,7 @@ pubspec.lock
 
 #flutter specific files
 .flutter-plugins-dependencies
+flutter_export_environment.sh
 
 # Directory created by dartdoc
 # If you don't generate documentation locally you can remove this line.
