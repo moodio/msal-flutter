@@ -3,10 +3,10 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'msal_flutter'
-  s.version          = '1.0.0'
+  s.version          = '1.2.0'
   s.summary          = 'MSAL Flutter Wrapper'
   s.description      = <<-DESC
-A new flutter plugin project.
+A flutter wrapper for MSAL.
                        DESC
   s.homepage         = 'https://www.moodio.co.uk'
   s.license          = { :file => '../LICENSE' }
@@ -18,6 +18,6 @@ A new flutter plugin project.
   s.dependency 'MSAL', '~> 1.0.3'
 
   s.swift_version = '4.0'
-  s.ios.deployment_target = '10.0'
+  s.ios.deployment_target = '12.4'
 end
 

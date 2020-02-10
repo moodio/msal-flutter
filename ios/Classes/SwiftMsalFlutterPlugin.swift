@@ -3,32 +3,34 @@ import UIKit
 import MSAL
 
 public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
-  
+
   //static fields as initialization isn't really required
   static var clientId : String = ""
+  static var redirectUri : String? = ""
   static var authority : String = ""
-  
+
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "msal_flutter", binaryMessenger: registrar.messenger())
     let instance = SwiftMsalFlutterPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) 
+  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult)
   {
     //get the arguments as a dictionary
     let dict = call.arguments! as! NSDictionary
     let scopes = dict["scopes"] as? [String] ?? [String]()
     let clientId = dict["clientId"] as? String ?? ""
+    let redirectUri = dict["redirectUri"] as? String ?? ""
     let authority = dict["authority"] as? String ?? ""
 
     switch( call.method ){
-      case "initialize": initialize(clientId: clientId, authority: authority, result: result)
+      case "initialize": initialize(clientId: clientId, redirectUri: redirectUri, authority: authority, result: result)
       case "acquireToken": acquireToken(scopes: scopes, result: result)
       case "acquireTokenSilent": acquireTokenSilent(scopes: scopes, result: result)
       case "logout": logout(result: result)
       default: result(FlutterError(code:"INVALID_METHOD", message: "The method called is invalid", details: nil))
-    } 
+    }
   }
 
 
@@ -52,7 +54,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
           result(FlutterError(code: "AUTH_ERROR", message: "Authentication error", details: error!.localizedDescription))
           return
         }
-        
+
         // Get access token from result
         let accessToken = authResult.accessToken
 
@@ -68,7 +70,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
   {
     if let application = getApplication(result: result){
       var account : MSALAccount!
-      
+
       do{
         let cachedAccounts = try application.allAccounts()
         if cachedAccounts.isEmpty {
@@ -78,20 +80,20 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
         }
         //set account as the first account
         account = cachedAccounts.first!
-      } 
+      }
       catch{
         result(FlutterError(code: "NO_ACCOUNT",  message: "Error retrieving an existing account", details: nil))
       }
-        
+
       let silentParameters = MSALSilentTokenParameters(scopes: scopes, account: account)
 
       application.acquireTokenSilent(with: silentParameters, completionBlock: { (msalresult, error) in
-                
+
         guard let authResult = msalresult, error == nil else {
             result(FlutterError(code: "AUTH_ERROR", message: "Authentication error", details: nil))
             return
         }
-        
+
         // Get access token from result
         let accessToken = authResult.accessToken
 
@@ -114,7 +116,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
 
     //setup the config, using authority if it is set, or defaulting to msal's own implementation if it's not
     if !SwiftMsalFlutterPlugin.authority.isEmpty
-    {     
+    {
       //try creating the msal aad authority object
       do{
         //create authority url
@@ -125,7 +127,8 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
 
         //create the msal authority and configuration
         let msalAuthority = try MSALAuthority(url: authorityUrl)
-        config = MSALPublicClientApplicationConfig(clientId: SwiftMsalFlutterPlugin.clientId, redirectUri: nil, authority: msalAuthority)
+        config = MSALPublicClientApplicationConfig(clientId: SwiftMsalFlutterPlugin.clientId, redirectUri: SwiftMsalFlutterPlugin.redirectUri, authority: msalAuthority)
+        config.knownAuthorities = [msalAuthority];
       } catch {
         //return error if exception occurs
         result(FlutterError(code: "INVALID_AUTHORITY", message: "invalid authority", details: nil))
@@ -134,21 +137,21 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     }
     else
     {
-      config = MSALPublicClientApplicationConfig(clientId: SwiftMsalFlutterPlugin.clientId)
+        config = MSALPublicClientApplicationConfig(clientId: SwiftMsalFlutterPlugin.clientId, redirectUri: SwiftMsalFlutterPlugin.redirectUri, authority: nil);
     }
 
     //create the application and return it
-    if let application = try? MSALPublicClientApplication(configuration: config)
+    do
     {
-      application.validateAuthority = false
-      return application
-    }else{
-      result(FlutterError(code: "CONFIG_ERROR", message: "Unable to create MSALPublicClientApplication", details: nil))
-      return nil
+        let application = try MSALPublicClientApplication(configuration: config)
+        return application
+    } catch {
+        result(FlutterError(code: "CONFIG_ERROR", message: "Unable to create   MSALPublicClientApplication", details: error))
+        return nil
     }
   }
 
-  private func initialize(clientId: String, authority: String, result: @escaping FlutterResult)
+  private func initialize(clientId: String, redirectUri: String, authority: String, result: @escaping FlutterResult)
   {
     //validate clientid exists
     if(clientId.isEmpty){
@@ -157,6 +160,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     SwiftMsalFlutterPlugin.clientId = clientId;
+    SwiftMsalFlutterPlugin.redirectUri = redirectUri;
     SwiftMsalFlutterPlugin.authority = authority;
     result(true)
   }
@@ -174,7 +178,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
 
         let account = cachedAccounts.first!
         try application.remove(account)
-      } 
+      }
       catch {
         result(FlutterError(code: "CONFIG_ERROR", message: "Unable get remove accounts", details: nil))
         return
