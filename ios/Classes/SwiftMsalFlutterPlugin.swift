@@ -5,8 +5,9 @@ import MSAL
 public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
   
   //static fields as initialization isn't really required
-  static var clientId : String = ""
-  static var authority : String = ""
+    static var clientId : String = ""
+    static var authority : String = ""
+    static var redirectURI : String?
   
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "msal_flutter", binaryMessenger: registrar.messenger())
@@ -21,9 +22,10 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     let scopes = dict["scopes"] as? [String] ?? [String]()
     let clientId = dict["clientId"] as? String ?? ""
     let authority = dict["authority"] as? String ?? ""
+    let redirectURI = dict["redirectURI"] as? String ?? ""
 
     switch( call.method ){
-      case "initialize": initialize(clientId: clientId, authority: authority, result: result)
+    case "initialize": initialize(clientId: clientId, authority: authority, redirectURI: redirectURI, result: result)
       case "acquireToken": acquireToken(scopes: scopes, result: result)
       case "acquireTokenSilent": acquireTokenSilent(scopes: scopes, result: result)
       case "logout": logout(result: result)
@@ -125,7 +127,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
 
         //create the msal authority and configuration
         let msalAuthority = try MSALAuthority(url: authorityUrl)
-        config = MSALPublicClientApplicationConfig(clientId: SwiftMsalFlutterPlugin.clientId, redirectUri: nil, authority: msalAuthority)
+        config = MSALPublicClientApplicationConfig(clientId: SwiftMsalFlutterPlugin.clientId, redirectUri: SwiftMsalFlutterPlugin.redirectURI, authority: msalAuthority)
       } catch {
         //return error if exception occurs
         result(FlutterError(code: "INVALID_AUTHORITY", message: "invalid authority", details: nil))
@@ -148,7 +150,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     }
   }
 
-  private func initialize(clientId: String, authority: String, result: @escaping FlutterResult)
+    private func initialize(clientId: String, authority: String, redirectURI: String?, result: @escaping FlutterResult)
   {
     //validate clientid exists
     if(clientId.isEmpty){
@@ -158,6 +160,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
 
     SwiftMsalFlutterPlugin.clientId = clientId;
     SwiftMsalFlutterPlugin.authority = authority;
+    SwiftMsalFlutterPlugin.redirectURI = redirectURI
     result(true)
   }
 
