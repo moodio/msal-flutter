@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/services.dart';
+
 import 'msal_exception.dart';
 
 /// Represents a PublicClientApplication used to authenticate using the implicit flow
@@ -88,7 +90,17 @@ class PublicClientApplication {
         return MsalInitializationException();
       case "AUTH_ERROR":
       default:
-        return MsalException("Authentication error");
+
+        /// PlatformException(AUTH_ERROR, Authentication error, The operation couldn’t be completed. (MSALErrorDomain error -50000.))
+        if (e.details != null &&
+            e.details
+                .toString()
+                .toLowerCase()
+                .contains('msalerrordomain error -50000')) {
+          return MsalForgotPasswordException();
+        } else {
+          return MsalException("Authentication error");
+        }
     }
   }
 
