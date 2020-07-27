@@ -92,11 +92,11 @@ class PublicClientApplication {
       default:
 
         /// PlatformException(AUTH_ERROR, Authentication error, The operation couldn’t be completed. (MSALErrorDomain error -50000.))
+        /// PlatformException(AUTH_ERROR, Authentication failed, access_denied;AADB2C90118: The user has forgotten their password.
+        var detailsInLowerCase = e.details.toString().toLowerCase();
         if (e.details != null &&
-            e.details
-                .toString()
-                .toLowerCase()
-                .contains('msalerrordomain error -50000')) {
+            (detailsInLowerCase.contains('msalerrordomain error -50000') ||
+                detailsInLowerCase.contains('aadb2c90118'))) {
           return MsalForgotPasswordException();
         } else {
           return MsalException("Authentication error");
