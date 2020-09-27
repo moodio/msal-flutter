@@ -1,3 +1,8 @@
+# IMPORTANT UPDATE
+Please note that I am not currently accepting pull requests for this project as I begin working on complete rewrite of the library that will not rely on the native libraries which have proven to have too many inconsistencies between them.
+
+Stay tuned for updates!
+
 # VERSION 1.0.0+ WARNING
 Version 1.0.0 uses the updated MSAL Libraries and moves to Android-X. 1.0.0 IS NOT compatiable with older versions. Please only update to 1.0.+ if you are ready to migrate your android app and change how you call the constructor.
 Version 1+ is however required to use MSAL on iOS 13+
