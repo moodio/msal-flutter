@@ -39,6 +39,13 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
+
+    buildTypes {
+        release {
+            buildConfigField "boolean", 'IS_PRINT_LOG', "false"
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
 }
 
 dependencies {
