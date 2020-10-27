@@ -13,8 +13,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   
-  static const String _authority = "https://msalfluttertest.b2clogin.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu";
-  static const String _clientId = "5913dfb1-7576-451c-a7ea-a7c5a3f8682a";
+  static const String _authority = "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize";
+  static const String _clientId = "1516f813-e189-4587-8158-ffb338650aa7";
   
   String _output = 'NONE';
 

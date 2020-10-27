@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'msal_exception.dart';
 
@@ -103,6 +105,7 @@ class PublicClientApplication {
     try {
       await _channel.invokeMethod('initialize', res);
     } on PlatformException catch (e) {
+      debugPrint("MSAL--> ${e.message} --> ${e.code}");
       throw _convertException(e);
     }
   }
