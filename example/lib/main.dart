@@ -14,9 +14,13 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   
   static const String _authority = "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize";
-  static const String _clientId = "1516f813-e189-4587-8158-ffb338650aa7";
+  static const String _clientId = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
   
   String _output = 'NONE';
+  static const List<String> kScopes = [
+    "https://graph.microsoft.com/user.read",
+    "https://graph.microsoft.com/Calendars.ReadWrite",
+  ];
 
   PublicClientApplication pca;
 
@@ -27,7 +31,7 @@ class _MyAppState extends State<MyApp> {
 
     String res;
     try{
-      res = await pca.acquireToken(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
+      res = await pca.acquireToken(kScopes);
     } on MsalUserCancelledException {
       res = "User cancelled";
     } on MsalNoAccountException {
@@ -53,15 +57,15 @@ class _MyAppState extends State<MyApp> {
     String res;
     try
     {
-      res = await pca.acquireTokenSilent(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
+      res = await pca.acquireTokenSilent(kScopes);
     } on MsalUserCancelledException {
       res = "User cancelled";
     } on MsalNoAccountException {
       res = "no account";
     } on MsalInvalidConfigurationException {
       res = "invalid config";
-    } on MsalInvalidScopeException {
-      res = "Invalid scope";
+    } on MsalInvalidScopeException catch (e) {
+      res = "Invalid scope: ${e.errorMessage}";
     }on MsalException {
       res = "Error getting token silently!";
     }

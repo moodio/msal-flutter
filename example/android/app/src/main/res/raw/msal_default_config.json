@@ -1,20 +1,21 @@
 {
-  "authorities": [
-    {
-      "type": "AAD",
-      "audience": {
-        "type": "AzureADMyOrg",
-        "tenant_id": "fagsfgagag"
-      }
-    }
-  ],
-  "client_id" : "fdsfsdfsfsfsf",
-  "redirect_uri" : "msauth://uk.co.moodio.msal_flutter_example/U5rbvBLdFUbEazWhQfDgt6oRa24%3D",
+  "client_id": "xxxx-xxxxx-xxxx-xxxx--xxxxx",
+  "redirect_uri": "msauth://com.my/U5rbvBLdFUbEazWhQfDgt6oRa24%3D",
   "authorization_user_agent": "DEFAULT",
   "minimum_required_broker_protocol_version": "3.0",
   "multiple_clouds_supported": false,
   "broker_redirect_uri_registered": true,
   "environment": "Production",
+  "account_mode": "MULTIPLE",
+  "authorities": [
+    {
+      "type": "AAD",
+      "audience": {
+        "type": "AzureADMyOrg",
+        "tenant_id": "123432-1234-12343-bfre-78a6ff9loskf"
+      }
+    }
+  ],
   "http": {
     "connect_timeout": 10000,
     "read_timeout": 30000
@@ -24,7 +25,6 @@
     "log_level": "WARNING",
     "logcat_enabled": true
   },
-  "account_mode": "MULTIPLE",
   "browser_safelist": [
     {
       "browser_package_name": "com.android.chrome",

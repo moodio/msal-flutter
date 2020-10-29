@@ -6,7 +6,11 @@ import android.os.Looper
 import android.util.Log
 import com.microsoft.identity.client.*
 import com.microsoft.identity.client.IPublicClientApplication.IMultipleAccountApplicationCreatedListener
+import com.microsoft.identity.client.IPublicClientApplication.LoadAccountsCallback
+import com.microsoft.identity.client.exception.MsalClientException
 import com.microsoft.identity.client.exception.MsalException
+import com.microsoft.identity.client.exception.MsalServiceException
+import com.microsoft.identity.client.exception.MsalUiRequiredException
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -19,6 +23,7 @@ class MsalFlutterPlugin : MethodCallHandler {
     companion object {
         lateinit var mainActivity: Activity
         lateinit var msalApp: IMultipleAccountPublicClientApplication
+        lateinit var accountList: List<IAccount>
 
         fun isClientInitialized() = ::msalApp.isInitialized
 
@@ -53,13 +58,40 @@ class MsalFlutterPlugin : MethodCallHandler {
             }
         }
 
+        /**
+         * Callback used in for silent acquireToken calls.
+         */
+        fun getAuthSilentCallback(result: Result): SilentAuthenticationCallback {
+            return object : SilentAuthenticationCallback {
+                override fun onSuccess(authenticationResult: IAuthenticationResult) {
+                    Log.d("MSAL_FLUTTER", "Successfully authenticated")
+                    Handler(Looper.getMainLooper()).post {
+                        result.success(authenticationResult.accessToken)
+                    }
+                }
+
+                override fun onError(exception: MsalException) {
+                    /* Failed to acquireToken */
+                    Log.d("MSAL_FLUTTER", "Authentication failed: $exception")
+                    if (exception is MsalClientException) {
+                        result.error("NO_SCOPE", "Call must include a scope", exception.localizedMessage)
+                    } else if (exception is MsalServiceException) {
+                        result.error("NO_SCOPE", exception.localizedMessage, exception.localizedMessage)
+                    } else if (exception is MsalUiRequiredException) {
+                        result.error("NO_SCOPE", "Call must include a scope", exception.localizedMessage)
+                    }
+                }
+            }
+        }
+
         private fun getApplicationCreatedListener(result: Result): IMultipleAccountApplicationCreatedListener {
 
             return object : IMultipleAccountApplicationCreatedListener {
-
                 override fun onCreated(application: IMultipleAccountPublicClientApplication) {
-                    msalApp = application
-                    result.success(true)
+
+                        msalApp = application
+                        result.success(true)
+
                 }
 
                 override fun onError(exception: MsalException?) {
@@ -68,6 +100,8 @@ class MsalFlutterPlugin : MethodCallHandler {
                 }
             }
         }
+
+
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -79,6 +113,7 @@ class MsalFlutterPlugin : MethodCallHandler {
         when (call.method) {
             "logout" -> Thread(Runnable { logout(result) }).start()
             "initialize" -> initialize(clientId, authority, result)
+            "loadAccounts" -> Thread(Runnable { loadAccounts(result) }).start()
             "acquireToken" -> Thread(Runnable { acquireToken(scopes, result) }).start()
             "acquireTokenSilent" -> Thread(Runnable { acquireTokenSilent(scopes, result) }).start()
             else -> result.notImplemented()
@@ -101,7 +136,9 @@ class MsalFlutterPlugin : MethodCallHandler {
         }
 
         //remove old accounts
-        while (msalApp.accounts.any()) { msalApp.removeAccount(msalApp.accounts.first()) }
+        while (msalApp.accounts.any()) {
+            msalApp.removeAccount(msalApp.accounts.first())
+        }
 
         //acquire the token
         msalApp.acquireToken(mainActivity, scopes, getAuthCallback(result))
@@ -109,6 +146,7 @@ class MsalFlutterPlugin : MethodCallHandler {
 
     private fun acquireTokenSilent(scopes: Array<String>?, result: Result) {
         // check if client has been initialized
+
         if (!isClientInitialized()) {
             Handler(Looper.getMainLooper()).post {
                 result.error("NO_CLIENT", "Client must be initialized before attempting to acquire a token.", null)
@@ -124,19 +162,20 @@ class MsalFlutterPlugin : MethodCallHandler {
         }
 
         //ensure accounts exist
-        if (msalApp.accounts.isEmpty()) {
+        if (accountList?.isEmpty()) {
             Handler(Looper.getMainLooper()).post {
                 result.error("NO_ACCOUNT", "No account is available to acquire token silently for", null)
             }
             return
         }
-
+        val selectedAccount: IAccount = accountList.first();
         //acquire the token and return the result
-        val res = msalApp.acquireTokenSilent(scopes, msalApp.accounts[0], msalApp.configuration.defaultAuthority.authorityURL.toString())
-        Handler(Looper.getMainLooper()).post {
-            result.success(res.accessToken)
-        }
+        val sc = scopes.map { s -> s.toLowerCase() }.toTypedArray()
+
+        msalApp.acquireTokenSilentAsync(sc, selectedAccount, selectedAccount.authority, getAuthSilentCallback(result))
+
     }
+
 
     private fun initialize(clientId: String?, authority: String?, result: Result) {
         //ensure clientid provided
@@ -153,20 +192,59 @@ class MsalFlutterPlugin : MethodCallHandler {
                 result.error("CHANGED_CLIENTID", "Attempting to initialize with multiple clientIds.", null)
             }
         }
-        // if authority is set, create client using it, otherwise use default
-        PublicClientApplication.createMultipleAccountPublicClientApplication(mainActivity.applicationContext,
-                R.raw.msal_default_config, getApplicationCreatedListener(result))
+        if(!isClientInitialized()) {
+            // if authority is set, create client using it, otherwise use default
+            PublicClientApplication.createMultipleAccountPublicClientApplication(mainActivity.applicationContext,
+                    R.raw.msal_default_config, getApplicationCreatedListener(result))
+        }
 
+    }
 
+    /**
+     * Load currently signed-in accounts, if there's any.
+     */
+    private fun loadAccounts(result: Result) {
+
+        msalApp.getAccounts(object : LoadAccountsCallback {
+
+            override fun onTaskCompleted(resultList: List<IAccount>) {
+                accountList = resultList
+                result.success(true)
+            }
+
+            override fun onError(exception: MsalException) {
+                result.error("NO_ACCOUNT", "No account is available to acquire token silently for", exception)
+            }
+        })
     }
 
 
     private fun logout(result: Result) {
-        while (msalApp.accounts.any()) {
-            msalApp.removeAccount(msalApp.accounts.first())
+        if(!isClientInitialized()){
+            Handler(Looper.getMainLooper()).post {
+                result.error("NO_ACCOUNT", "No account is available to acquire token silently for", null)
+            }
+            return
         }
-        Handler(Looper.getMainLooper()).post {
-            result.success(true)
+
+        if (accountList?.isEmpty()) {
+            Handler(Looper.getMainLooper()).post {
+                result.error("NO_ACCOUNT", "No account is available to acquire token silently for", null)
+            }
+            return
         }
+
+        msalApp.removeAccount(accountList.first(), object : IMultipleAccountPublicClientApplication.RemoveAccountCallback{
+            override fun onRemoved() {
+                Thread(Runnable { loadAccounts(result) }).start()
+            }
+
+            override fun onError(exception: MsalException) {
+                result.error("NO_ACCOUNT", "No account is available to acquire token silently for", exception)
+            }
+        })
+
     }
 }
+
+

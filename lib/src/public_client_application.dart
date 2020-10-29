@@ -27,6 +27,7 @@ class PublicClientApplication {
       {String authority}) async {
     var res = PublicClientApplication._create(clientId, authority: authority);
     await res._initialize();
+
     return res;
   }
 
@@ -51,8 +52,8 @@ class PublicClientApplication {
 
     //call platform
     try {
-      final String token =
-          await _channel.invokeMethod('acquireTokenSilent', res);
+      await _channel.invokeMethod('loadAccounts');
+      final String token = await _channel.invokeMethod('acquireTokenSilent', res);
       return token;
     } on PlatformException catch (e) {
       throw _convertException(e);
@@ -61,6 +62,7 @@ class PublicClientApplication {
 
   Future logout() async {
     try {
+      await _channel.invokeMethod('loadAccounts');
       await _channel.invokeMethod('logout', <String, dynamic>{});
     } on PlatformException catch (e) {
       throw _convertException(e);
