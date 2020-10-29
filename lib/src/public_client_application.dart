@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,7 +53,9 @@ class PublicClientApplication {
 
     //call platform
     try {
-      await _channel.invokeMethod('loadAccounts');
+      if (Platform.isAndroid) {
+        await _channel.invokeMethod('loadAccounts');
+      }
       final String token = await _channel.invokeMethod('acquireTokenSilent', res);
       return token;
     } on PlatformException catch (e) {
@@ -62,7 +65,9 @@ class PublicClientApplication {
 
   Future logout() async {
     try {
-      await _channel.invokeMethod('loadAccounts');
+      if (Platform.isAndroid) {
+        await _channel.invokeMethod('loadAccounts');
+      }
       await _channel.invokeMethod('logout', <String, dynamic>{});
     } on PlatformException catch (e) {
       throw _convertException(e);
