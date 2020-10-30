@@ -37,3 +37,7 @@ class MsalUninitializedException extends MsalException {
       : super(
             "Client not initialized. Client must be initialized before attempting to use");
 }
+
+class MsalForgotPasswordException extends MsalException {
+  MsalForgotPasswordException() : super("User forgot password");
+}
