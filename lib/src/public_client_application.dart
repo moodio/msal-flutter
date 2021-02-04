@@ -1,12 +1,17 @@
 import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
 import 'msal_exception.dart';
 
 /// Represents a PublicClientApplication used to authenticate using the implicit flow
 class PublicClientApplication {
   static const MethodChannel _channel = const MethodChannel('msal_flutter');
 
-  String _clientId, _authority;
+  // String _clientId, _authority;
+  String _microsoftConfigFile = "";
 
   /// Create a new PublicClientApplication authenticating as the given [clientId],
   /// optionally against the selected [authority], defaulting to the common
@@ -15,15 +20,13 @@ class PublicClientApplication {
         "Direct call is no longer supported in v1.0, please use static method createPublicClientApplication");
   }
 
-  PublicClientApplication._create(String clientId, {String authority}) {
-    _clientId = clientId;
-    _authority = authority;
+  PublicClientApplication._create(String microsoftConfigFile) {
+    this._microsoftConfigFile = microsoftConfigFile;
   }
 
   static Future<PublicClientApplication> createPublicClientApplication(
-      String clientId,
-      {String authority}) async {
-    var res = PublicClientApplication._create(clientId, authority: authority);
+      String microsoftConfigFile) async {
+    var res = PublicClientApplication._create(microsoftConfigFile);
     await res._initialize();
     return res;
   }
@@ -94,11 +97,15 @@ class PublicClientApplication {
 
   //initialize the main client platform side
   Future _initialize() async {
-    var res = <String, dynamic>{'clientId': this._clientId};
-    //if authority has been set, add it aswell
-    if (this._authority != null) {
-      res["authority"] = this._authority;
+    var res = <String, dynamic>{};
+
+    try {
+      _microsoftConfigFile = await getFilePath();
+    } on Exception catch (ex) {
+      // throw _convertException(ex);
     }
+
+    res["microsoftConfigFilePath"] = this._microsoftConfigFile;
 
     try {
       await _channel.invokeMethod('initialize', res);
@@ -106,4 +113,13 @@ class PublicClientApplication {
       throw _convertException(e);
     }
   }
+
+  /// this method get file path from file url.
+  Future<String> getFilePath() async {
+    ByteData data = await rootBundle.load(_microsoftConfigFile);
+    File file = await DefaultCacheManager()
+        .putFile(_microsoftConfigFile, data.buffer.asUint8List());
+    return file.path;
+  }
+
 }
