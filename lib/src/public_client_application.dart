@@ -1,8 +1,13 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:msal_flutter/models/authority.dart';
+import 'package:msal_flutter/models/authorization_agent.dart';
+import 'package:msal_flutter/models/browser_descriptor.dart';
+import 'package:msal_flutter/models/environment.dart';
+import 'package:msal_flutter/models/http_configuration.dart';
+import 'package:msal_flutter/models/logger_configuration.dart';
 
 import 'msal_exception.dart';
 
@@ -11,7 +16,37 @@ class PublicClientApplication {
   static const MethodChannel _channel = const MethodChannel('msal_flutter');
 
   // String _clientId, _authority;
-  String _microsoftConfigFile = "";
+  String clientID;
+
+  String redirectUri;
+
+  List<Authority> authority;
+
+  HttpConfiguration httpConfiguration;
+
+  AuthorizationAgent authorizationAgent = AuthorizationAgent.DEFAULT;
+
+  LoggerConfiguration loggerConfiguration;
+
+  bool multipleCloudsSupported;
+
+  bool useBroker;
+
+  Environment environment;
+
+  String requiredBrokerProtocolVersion;
+
+  String clientCapabilities;
+
+  bool webViewZoomControlsEnabled;
+
+  bool webViewZoomEnabled;
+
+  bool powerOptCheckEnabled;
+
+  List<BrowserDescriptor> browserDescriptor;
+
+  List<String> jsonString = [];
 
   /// Create a new PublicClientApplication authenticating as the given [clientId],
   /// optionally against the selected [authority], defaulting to the common
@@ -20,13 +55,66 @@ class PublicClientApplication {
         "Direct call is no longer supported in v1.0, please use static method createPublicClientApplication");
   }
 
-  PublicClientApplication._create(String microsoftConfigFile) {
-    this._microsoftConfigFile = microsoftConfigFile;
+  PublicClientApplication._create(String clientID, String redirectUri,
+      {List<Authority> authority,
+      HttpConfiguration httpConfiguration,
+      AuthorizationAgent authorizationAgent,
+      LoggerConfiguration loggerConfiguration,
+      bool multipleCloudsSupported,
+      bool useBroker,
+      Environment environment,
+      String requiredBrokerProtocolVersion,
+      String clientCapabilities,
+      List<BrowserDescriptor> browserDescriptor,
+      bool webViewZoomControlsEnabled,
+      bool webViewZoomEnabled,
+      bool powerOptCheckEnabled}) {
+    this.clientID = clientID;
+    this.redirectUri = redirectUri;
+    this.httpConfiguration = httpConfiguration;
+    this.authorizationAgent = authorizationAgent;
+    this.authority = authority;
+    this.browserDescriptor = browserDescriptor;
+    this.loggerConfiguration = loggerConfiguration;
+    this.multipleCloudsSupported = multipleCloudsSupported;
+    this.useBroker = useBroker;
+    this.environment = environment;
+    this.requiredBrokerProtocolVersion = requiredBrokerProtocolVersion;
+    this.clientCapabilities = clientCapabilities;
+    this.webViewZoomControlsEnabled = webViewZoomControlsEnabled;
+    this.webViewZoomEnabled = webViewZoomEnabled;
+    this.powerOptCheckEnabled = powerOptCheckEnabled;
   }
 
   static Future<PublicClientApplication> createPublicClientApplication(
-      String microsoftConfigFile) async {
-    var res = PublicClientApplication._create(microsoftConfigFile);
+      String clientID, String redirectUri,
+      {List<Authority> authority,
+      HttpConfiguration httpConfiguration,
+      AuthorizationAgent authorizationAgent = AuthorizationAgent.DEFAULT,
+      LoggerConfiguration loggerConfiguration,
+      bool multipleCloudsSupported,
+      bool useBroker,
+      List<BrowserDescriptor> browserDescriptor,
+      Environment environment,
+      String requiredBrokerProtocolVersion,
+      String clientCapabilities,
+      bool webViewZoomControlsEnabled,
+      bool webViewZoomEnabled,
+      bool powerOptCheckEnabled}) async {
+    var res = PublicClientApplication._create(clientID, redirectUri,
+        authorizationAgent: authorizationAgent,
+        httpConfiguration: httpConfiguration,
+        environment: environment,
+        authority: authority,
+        browserDescriptor: browserDescriptor,
+        clientCapabilities: clientCapabilities,
+        loggerConfiguration: loggerConfiguration,
+        multipleCloudsSupported: multipleCloudsSupported,
+        powerOptCheckEnabled: powerOptCheckEnabled,
+        requiredBrokerProtocolVersion: requiredBrokerProtocolVersion,
+        useBroker: useBroker,
+        webViewZoomControlsEnabled: webViewZoomControlsEnabled,
+        webViewZoomEnabled: webViewZoomEnabled);
     await res._initialize();
     return res;
   }
@@ -78,6 +166,8 @@ class PublicClientApplication {
         return MsalNoAccountException();
       case "NO_CLIENTID":
         return MsalInvalidConfigurationException("Client Id not set");
+      case "NO_REDIRECTURI":
+        return MsalInvalidConfigurationException("RedirectUri  not set");
       case "INVALID_AUTHORITY":
         return MsalInvalidConfigurationException("Invalid authroity set.");
       case "CONFIG_ERROR":
@@ -99,13 +189,9 @@ class PublicClientApplication {
   Future _initialize() async {
     var res = <String, dynamic>{};
 
-    try {
-      _microsoftConfigFile = await getFilePath();
-    } on Exception catch (ex) {
-      // throw _convertException(ex);
-    }
+    _getMSALConfiguration();
 
-    res["microsoftConfigFilePath"] = this._microsoftConfigFile;
+    res["jsonString"] = jsonString;
 
     try {
       await _channel.invokeMethod('initialize', res);
@@ -114,12 +200,68 @@ class PublicClientApplication {
     }
   }
 
-  /// this method get file path from file url.
-  Future<String> getFilePath() async {
-    ByteData data = await rootBundle.load(_microsoftConfigFile);
-    File file = await DefaultCacheManager()
-        .putFile(_microsoftConfigFile, data.buffer.asUint8List());
-    return file.path;
+  //method used to validate Configuration and return list of valid config.
+  void _getMSALConfiguration() {
+    //required
+    if (clientID.replaceAll(" ", "").isEmpty) {
+      throw _convertException(PlatformException(code: "NO_CLIENTID"));
+    }
+
+    if (redirectUri.replaceAll(" ", "").isEmpty) {
+      throw _convertException(PlatformException(code: "NO_REDIRECTURI"));
+    }
+
+    jsonString.add("\"client_id\":" + "\"$clientID\"");
+    jsonString.add("\"redirect_uri\":" + "\"$redirectUri\"");
+
+    _addJsonItem(
+        httpConfiguration, "\"http\":" + jsonEncode(httpConfiguration));
+    _addJsonItem(
+        authority, "\"authorities\":\n" + jsonEncode(authority));
+    _addJsonItem(authorizationAgent,
+        "\"authorization_user_agent\":" +   "\"${authorizationAgent.toString().split('.').last}\"");
+
+    _addJsonItem(
+        loggerConfiguration, "\"logging\":" + jsonEncode(loggerConfiguration));
+
+    _addJsonItem(multipleCloudsSupported,
+        "\"multiple_clouds_supported\":" + "$multipleCloudsSupported");
+    _addJsonItem(
+        useBroker, "\"broker_redirect_uri_registered\":" + "$useBroker");
+
+    _addJsonItem(environment,
+        "\"environment\":" + "\"${environment.toString().split('.').last}\"");
+
+    _addJsonItem(
+        requiredBrokerProtocolVersion,
+        "\"minimum_required_broker_protocol_version\":" + "$requiredBrokerProtocolVersion");
+
+    _addJsonItem(clientCapabilities,
+        "\"client_capabilities\":" + "\"$clientCapabilities\"");
+
+    _addJsonItem(webViewZoomControlsEnabled,
+        "\"web_view_zoom_controls_enabled\":" + "$webViewZoomControlsEnabled");
+
+    _addJsonItem(webViewZoomEnabled,
+        "\"web_view_zoom_enabled\":" + "$webViewZoomEnabled");
+
+    _addJsonItem(
+        powerOptCheckEnabled,
+        "\"power_opt_check_for_network_req_enabled\":" +
+            "$powerOptCheckEnabled");
+
+    jsonString.add("\"account_mode\": " + "\"MULTIPLE\"");
+    _addJsonItem(browserDescriptor,
+        "\"browser_safelist\":" + jsonEncode(browserDescriptor));
+
+  }
+
+
+
+  void _addJsonItem(Object object, String jsonItem) {
+    if (object != null) {
+      jsonString.add(jsonItem);
+    }
   }
 
 }

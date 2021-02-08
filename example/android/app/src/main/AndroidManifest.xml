@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="uk.co.moodio.msal_flutter_example">
+    package="uk.co.moodio.msalFlutterV2">
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
@@ -48,9 +48,10 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data 	android:host="auth"
-                    android:path=""
-                    android:scheme="msal5913dfb1-7576-451c-a7ea-a7c5a3f8682a" /> />
+                <data
+                    android:host="uk.co.moodio.msalFlutterV2"
+                    android:path="/Q/0D7Tf8HlHBVBk3J0cSapmcwTA="
+                    android:scheme="msauth" />
             </intent-filter>
         </activity>
 

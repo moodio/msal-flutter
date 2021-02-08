@@ -4,7 +4,7 @@ version: 1.0.0+2
 homepage: https://github.com/moodio/msal-flutter
 repository: https://github.com/moodio/msal-flutter
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -20,3 +20,6 @@ flutter:
   plugin:
     androidPackage: uk.co.moodio.msal_flutter
     pluginClass: MsalFlutterPlugin
+
+    assets:
+      - assets/auth_config_multi_account.json

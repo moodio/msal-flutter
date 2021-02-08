@@ -1,0 +1,1 @@
+enum LogLevel { ERROR, WARNING, INFO, VERBOSE }

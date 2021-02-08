@@ -2,7 +2,6 @@ package uk.co.moodio.msal_flutter
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.annotation.WorkerThread
 import android.app.Activity
 import androidx.annotation.NonNull
@@ -11,8 +10,8 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import java.io.File
 import android.content.Context
+import java.io.*
 
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
@@ -44,6 +43,22 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import com.microsoft.identity.client.SingleAccountPublicClientApplication
 import com.microsoft.identity.client.MultipleAccountPublicClientApplication
 import com.microsoft.identity.client.IPublicClientApplication.LoadAccountsCallback
+import java.util.stream.IntStream
+
+
+import java.io.OutputStreamWriter
+import android.util.Log
+
+import java.io.IOException
+
+
+import java.io.FileOutputStream
+
+import java.io.File
+
+import android.os.Environment
+
+import com.microsoft.identity.client.IMultipleAccountPublicClientApplication.RemoveAccountCallback
 
 @Suppress("SpellCheckingInspection")
 class MsalFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -74,11 +89,12 @@ class MsalFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             override fun onSuccess(authenticationResult: IAuthenticationResult) {
                 Log.d("MsalFlutter", "Authentication successful")
 
-                loadAccounts(result)
+                loadAccounts(result, {
+                    Handler(Looper.getMainLooper()).post {
+                        result.success(authenticationResult.getAccessToken())
+                    }
+                })
 
-                Handler(Looper.getMainLooper()).post {
-                    result.success(authenticationResult.getAccessToken())
-                }
             }
 
             override fun onError(exception: MsalException) {
@@ -109,7 +125,6 @@ class MsalFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 Log.d("MsalFlutter", "Created successfully")
                 msalApp = application as MultipleAccountPublicClientApplication
                 result.success(true)
-
             }
 
             override fun onError(exception: MsalException) {
@@ -127,8 +142,6 @@ class MsalFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         return object : SilentAuthenticationCallback {
             override fun onSuccess(authenticationResult: IAuthenticationResult) {
                 Log.d("MsalFlutter", "Authentication successful")
-
-                loadAccounts(result)
 
                 Handler(Looper.getMainLooper()).post {
                     result.success(authenticationResult.getAccessToken())
@@ -148,21 +161,18 @@ class MsalFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         context = flutterPluginBinding.applicationContext
     }
 
+
     override fun onMethodCall(call: MethodCall, result: Result) {
+
+        // setup values.
         val scopesArg: ArrayList<String>? = call.argument("scopes")
         val scopes: Array<String>? = scopesArg?.toTypedArray()
-//        val clientId: String? = call.argument("clientId")
-        val authority: String? = call.argument("authority")
-        val microsoftConfigFilePath: String? = call.argument("microsoftConfigFilePath")
-
-        Log.d("MsalFlutter", "Got scopes: $scopes")
-//        Log.d("MsalFlutter", "Got cleintId: $clientId")
-        Log.d("MsalFlutter", "Got authority: $authority")
-        Log.d("MsalFlutter", "Got microsoftConfigFile: $microsoftConfigFilePath")
+        val jsonStringArg: ArrayList<String>? = call.argument("jsonString")
+        val jsonString: Array<String>? = jsonStringArg?.toTypedArray()
 
         when (call.method) {
             "logout" -> Thread(Runnable { logout(result) }).start()
-            "initialize" -> initialize(microsoftConfigFilePath, result)
+            "initialize" -> initialize(jsonString, result)
             "acquireToken" -> Thread(Runnable { acquireToken(scopes, result) }).start()
             "acquireTokenSilent" -> Thread(Runnable { acquireTokenSilentAsync(scopes, result) }).start()
             else -> result.notImplemented()
@@ -170,12 +180,30 @@ class MsalFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     }
 
+
+    //convert list to json string.
+    private fun getJsonString(jsonString: Array<String>?): StringBuilder {
+        val json = StringBuilder()
+
+        json.append("{ \n")
+        IntStream.range(0, jsonString!!.size).forEach {
+            json.append("${jsonString[it]}" + if (it != jsonString!!.size - 1) "," else "")
+            json.append("\n")
+        }
+        json.append("} \n")
+
+        Log.d("MsalFlutter", "Got Json List: ${json}")
+
+        return json
+    }
+
+
     /**
      * Load currently signed-in accounts, if there's any.
      */
-    private fun loadAccounts( result: Result) {
+    private fun loadAccounts(result: Result, listener: () -> Unit) {
         Log.d("MsalFlutter", "load accounts called")
-//
+
         // check if client has been initialized
         if (!isClientInitialized()) {
             Log.d("MsalFlutter", "Client has not been initialized")
@@ -186,8 +214,10 @@ class MsalFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
 
         msalApp.getAccounts(object : LoadAccountsCallback {
-            override fun onTaskCompleted(result: List<IAccount>) {
-                accountList = result
+            override fun onTaskCompleted(list: List<IAccount>) {
+                accountList = list
+                Log.d("MsalFlutter", "account : ${accountList}")
+                listener()
             }
 
             override fun onError(exception: MsalException) {
@@ -229,6 +259,7 @@ class MsalFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             Handler(Looper.getMainLooper()).post {
                 result.error("NO_CLIENT", "Client must be initialized before attempting to acquire a token.", null)
             }
+            return
         }
 
         //check the scopes
@@ -240,15 +271,20 @@ class MsalFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             return
         }
 
-        if (accountList != null) {
+
+
+        if (accountList == null || accountList!!.size == 0) {
             // i will fix this bug later.
+            Handler(Looper.getMainLooper()).post {
+                result.error("NO_ACCOUNT", "list account must contain at least one account", null)
+            }
             return
         }
 
 
         val selectedAccount = accountList!![0]
 
-//
+
         //acquire the token and return the result
         msalApp.acquireTokenSilentAsync(
                 scopes,
@@ -258,31 +294,73 @@ class MsalFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         )
     }
 
-    private fun initialize(microsoftConfigFile: String?, result: Result) {
+    private fun initialize(jsonString: Array<String>?, result: Result) {
 
         //if already initialized, ensure clientid hasn't changed
         if (isClientInitialized()) {
             Log.d("MsalFlutter", "Client already initialized.")
             result.error("CHANGED_CLIENTID", "Attempting to initialize with multiple clientIds.", null)
+            return
         }
 
-        val mConfigFile = File(microsoftConfigFile!!)
+        val json = getJsonString(jsonString)
+
+        val mConfigFile = writeToFile(json.toString())
+        Log.d("MsalFlutter", "Got file absolutePath: ${mConfigFile.absolutePath}")
 
         PublicClientApplication.createMultipleAccountPublicClientApplication(activity.getApplicationContext(), mConfigFile, getApplicationCreatedListener(result))
-
     }
 
 
+    fun writeToFile(data: String?): File {
+        val path: File = activity.getApplicationContext().getFilesDir()
 
+        val file = File(path, "auth_config_multi_account.json")
+
+        // Save your stream, don't forget to flush() it before closing it.
+        try {
+            file.createNewFile()
+            val fOut = FileOutputStream(file)
+            val myOutWriter = OutputStreamWriter(fOut)
+            myOutWriter.append(data)
+            myOutWriter.close()
+            fOut.flush()
+            fOut.close()
+        } catch (e: IOException) {
+            Log.e("Exception", "File write failed: " + e.toString())
+        }
+
+        return file
+    }
 
     private fun logout(result: Result) {
-//        while(msalApp.accounts.any()){
-//            Log.d("MsalFlutter","Removing old account")
-//            msalApp.removeAccount(msalApp.accounts.first())
-//        }
-//        Handler(Looper.getMainLooper()).post {
-//            result.success(true)
-//        }
+        if (accountList == null || accountList!!.size == 0) {
+            // i will fix this bug later.
+            Handler(Looper.getMainLooper()).post {
+                result.error("NO_ACCOUNT", "list account must contain at least one account", null)
+            }
+            return
+        }
+
+
+        val selectedAccount = accountList!![0]
+
+
+        msalApp.removeAccount(selectedAccount, object : RemoveAccountCallback {
+            override fun onRemoved() {
+                accountList = null
+                Log.d("MsalFlutter", "Removing old account")
+                Handler(Looper.getMainLooper()).post {
+                    result.success(true)
+                }
+            }
+
+            override fun onError(exception: MsalException) {
+                Log.d("MsalFlutter", "Initialize error")
+                Log.d("MsalFlutter", "${exception.message}")
+                result.error("INIT_ERROR", "Error initializting client", exception?.localizedMessage)
+            }
+        })
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {

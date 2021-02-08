@@ -2,6 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:msal_flutter/models/audience.dart';
+import 'package:msal_flutter/models/authority.dart';
+import 'package:msal_flutter/models/authority_type.dart';
+import 'package:msal_flutter/models/microsfot_account.dart';
 import 'package:msal_flutter/msal_flutter.dart';
 
 void main() => runApp(MyApp());
@@ -23,7 +27,14 @@ class _MyAppState extends State<MyApp> {
   Future<void> _acquireToken() async {
     if (pca == null) {
       pca = await PublicClientApplication.createPublicClientApplication(
-          "assets/auth_config_multi_account.json");
+          "877c0662-a3da-40a3-ac5b-c72dee4b7b49",
+          "msauth://uk.co.moodio.msalFlutterV2/Q%2F0D7Tf8HlHBVBk3J0cSapmcwTA%3D",
+          authority: [
+            Authority(
+                type: AuthorityType.AAD,
+                audience: Audience(MicrosoftAccount.PersonalMicrosoftAccount,
+                    tenantID: "consumers"))
+          ]);
     }
 
     String res;
@@ -49,7 +60,14 @@ class _MyAppState extends State<MyApp> {
   Future<void> _acquireTokenSilently() async {
     if (pca == null) {
       pca = await PublicClientApplication.createPublicClientApplication(
-          "assets/auth_config_multi_account.json");
+          "877c0662-a3da-40a3-ac5b-c72dee4b7b49",
+          "msauth://uk.co.moodio.msalFlutterV2/Q%2F0D7Tf8HlHBVBk3J0cSapmcwTA%3D",
+          authority: [
+            Authority(
+                type: AuthorityType.AAD,
+                audience: Audience(MicrosoftAccount.PersonalMicrosoftAccount,
+                    tenantID: "consumers"))
+          ]);
     }
 
     String res;
@@ -75,7 +93,15 @@ class _MyAppState extends State<MyApp> {
   Future _logout() async {
     print("called logout");
     if (pca == null) {
-      // pca = await PublicClientApplication.createPublicClientApplication(_clientId, authority: _authority);
+      pca = await PublicClientApplication.createPublicClientApplication(
+          "877c0662-a3da-40a3-ac5b-c72dee4b7b49",
+          "msauth://uk.co.moodio.msalFlutterV2/Q%2F0D7Tf8HlHBVBk3J0cSapmcwTA%3D",
+          authority: [
+            Authority(
+                type: AuthorityType.AAD,
+                audience: Audience(MicrosoftAccount.PersonalMicrosoftAccount,
+                    tenantID: "consumers"))
+          ]);
     }
 
     print("pca is not null");
