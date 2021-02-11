@@ -14,6 +14,7 @@ import 'msal_exception.dart';
 /// Represents a PublicClientApplication used to authenticate using the implicit flow
 class PublicClientApplication {
   static const MethodChannel _channel = const MethodChannel('msal_flutter');
+  // static const MethodChannel _channel = const MethodChannel('msal_flutter');
 
   // String _clientId, _authority;
   String clientID;
@@ -203,21 +204,19 @@ class PublicClientApplication {
   //method used to validate Configuration and return list of valid config.
   void _getMSALConfiguration() {
     //required
-    if (clientID.replaceAll(" ", "").isEmpty) {
+    if (clientID == null || clientID.replaceAll(" ", "").isEmpty) {
       throw _convertException(PlatformException(code: "NO_CLIENTID"));
     }
 
-    if (redirectUri.replaceAll(" ", "").isEmpty) {
+    if (redirectUri == null || redirectUri.replaceAll(" ", "").isEmpty) {
       throw _convertException(PlatformException(code: "NO_REDIRECTURI"));
     }
 
     jsonString.add("\"client_id\":" + "\"$clientID\"");
     jsonString.add("\"redirect_uri\":" + "\"$redirectUri\"");
 
-    _addJsonItem(
-        httpConfiguration, "\"http\":" + jsonEncode(httpConfiguration));
-    _addJsonItem(
-        authority, "\"authorities\":\n" + jsonEncode(authority));
+    _addJsonItem(httpConfiguration, "\"http\":" + jsonEncode(httpConfiguration));
+    _addJsonItem(authority, "\"authorities\":\n" + jsonEncode(authority));
     _addJsonItem(authorizationAgent,
         "\"authorization_user_agent\":" +   "\"${authorizationAgent.toString().split('.').last}\"");
 
