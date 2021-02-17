@@ -214,9 +214,8 @@ class PublicClientApplication {
 
     jsonString.add("\"client_id\":" + "\"$clientID\"");
     jsonString.add("\"redirect_uri\":" + "\"$redirectUri\"");
-
-    _addJsonItem(httpConfiguration, "\"http\":" + jsonEncode(httpConfiguration));
     _addJsonItem(authority, "\"authorities\":\n" + jsonEncode(authority));
+    _addJsonItem(httpConfiguration, "\"http\":" + jsonEncode(httpConfiguration));
     _addJsonItem(authorizationAgent,
         "\"authorization_user_agent\":" +   "\"${authorizationAgent.toString().split('.').last}\"");
 

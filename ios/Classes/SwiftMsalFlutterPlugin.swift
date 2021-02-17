@@ -7,7 +7,8 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
   //static fields as initialization isn't really required
   static var clientId : String = ""
   static var authority : String = ""
-  
+  static var redirectUri : String = ""
+
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "msal_flutter", binaryMessenger: registrar.messenger())
     let instance = SwiftMsalFlutterPlugin()
@@ -19,8 +20,14 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     //get the arguments as a dictionary
     let dict = call.arguments! as! NSDictionary
     let scopes = dict["scopes"] as? [String] ?? [String]()
-    let clientId = dict["clientId"] as? String ?? ""
-    let authority = dict["authority"] as? String ?? ""
+    let jsonList = dict["jsonString"] as? [String] ?? [String]()
+
+    let clientId = jsonList[0] as? String ?? ""
+    let redirectUri = jsonList[1] as? String ?? ""
+    let authority = jsonList[2]  as? String ?? ""
+
+
+   setUpRedirectUri(redirectUri)
 
     switch( call.method ){
       case "initialize": initialize(clientId: clientId, authority: authority, result: result)
@@ -30,6 +37,17 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
       default: result(FlutterError(code:"INVALID_METHOD", message: "The method called is invalid", details: nil))
     } 
   }
+
+
+  private func setUpRedirectUri(redirect_uri: String){
+  if redirect_uri.isEmpty{
+     if let bundleId = Bundle.main.bundleIdentifier {
+                    SwiftMsalFlutterPlugin.redirectUri = "msauth." + bundleId + "://auth"
+                  }
+  }
+
+  }
+
 
 
   private func acquireToken(scopes: [String], result: @escaping FlutterResult)
@@ -125,7 +143,7 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
 
         //create the msal authority and configuration
         let msalAuthority = try MSALAuthority(url: authorityUrl)
-        config = MSALPublicClientApplicationConfig(clientId: SwiftMsalFlutterPlugin.clientId, redirectUri: nil, authority: msalAuthority)
+        config = MSALPublicClientApplicationConfig(clientId: SwiftMsalFlutterPlugin.clientId, redirectUri: SwiftMsalFlutterPlugin.redirectUri , authority: msalAuthority)
       } catch {
         //return error if exception occurs
         result(FlutterError(code: "INVALID_AUTHORITY", message: "invalid authority", details: nil))
