@@ -3,7 +3,6 @@ import UIKit
 import MSAL
 
 public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
-  
   //static fields as initialization isn't really required
   static var clientId : String = ""
   static var authority : String = ""
@@ -21,16 +20,24 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
     let dict = call.arguments! as! NSDictionary
     let scopes = dict["scopes"] as? [String] ?? [String]()
     let jsonList = dict["jsonString"] as? [String] ?? [String]()
-
-    let clientId = jsonList[0] as? String ?? ""
-    let redirectUri = jsonList[1] as? String ?? ""
-    let authority = jsonList[2]  as? String ?? ""
-
-
-   setUpRedirectUri(redirectUri)
-
-    switch( call.method ){
-      case "initialize": initialize(clientId: clientId, authority: authority, result: result)
+    if !jsonList.isEmpty {
+        let auth = dict["authority"] as? String ?? ""
+        let jsonString = "{ \(jsonList[0].replacingOccurrences(of: "\\", with: "")), \(jsonList[1].replacingOccurrences(of: "\\", with: "")), \(jsonList[2].replacingOccurrences(of: "\\", with: "")), \(jsonList[3].replacingOccurrences(of: "\\", with: "")), \(jsonList[4].replacingOccurrences(of: "\\", with: ""))  }"
+        let decoder = JSONDecoder()
+        do {
+            let config = try decoder.decode(ClientConfiguration.self, from: Data(jsonString.utf8))
+            SwiftMsalFlutterPlugin.clientId = "\(config.clientID)"
+            SwiftMsalFlutterPlugin.redirectUri = "\(config.redirectURI)"
+            SwiftMsalFlutterPlugin.authority = "\(auth)"
+            print(config)
+        } catch {
+            print(error.localizedDescription)
+        }
+        setUpRedirectUri(redirect_uri: SwiftMsalFlutterPlugin.redirectUri)
+    }
+    
+    switch call.method {
+    case "initialize": initialize(clientId: SwiftMsalFlutterPlugin.clientId, authority: SwiftMsalFlutterPlugin.authority, result: result)
       case "acquireToken": acquireToken(scopes: scopes, result: result)
       case "acquireTokenSilent": acquireTokenSilent(scopes: scopes, result: result)
       case "logout": logout(result: result)
@@ -40,18 +47,16 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
 
 
   private func setUpRedirectUri(redirect_uri: String){
-  if redirect_uri.isEmpty{
-     if let bundleId = Bundle.main.bundleIdentifier {
-                    SwiftMsalFlutterPlugin.redirectUri = "msauth." + bundleId + "://auth"
-                  }
+    if redirect_uri.isEmpty {
+        if let bundleId = Bundle.main.bundleIdentifier {
+            SwiftMsalFlutterPlugin.redirectUri = "msauth." + bundleId + "://auth"
+        }
+    }
   }
 
-  }
 
 
-
-  private func acquireToken(scopes: [String], result: @escaping FlutterResult)
-  {
+  private func acquireToken(scopes: [String], result: @escaping FlutterResult) {
     if let application = getApplication(result: result){
           //delete old accounts
       do {
@@ -143,6 +148,9 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
 
         //create the msal authority and configuration
         let msalAuthority = try MSALAuthority(url: authorityUrl)
+        print(SwiftMsalFlutterPlugin.clientId)
+        print(SwiftMsalFlutterPlugin.redirectUri)
+        
         config = MSALPublicClientApplicationConfig(clientId: SwiftMsalFlutterPlugin.clientId, redirectUri: SwiftMsalFlutterPlugin.redirectUri , authority: msalAuthority)
       } catch {
         //return error if exception occurs
@@ -204,4 +212,40 @@ public class SwiftMsalFlutterPlugin: NSObject, FlutterPlugin {
       return
     }
   }
+}
+
+struct ClientConfiguration: Codable {
+    let clientID, redirectURI: String
+//    let authorities: [Authority]
+    let authorizationUserAgent, accountMode: String
+
+    enum CodingKeys: String, CodingKey {
+        case clientID = "client_id"
+        case redirectURI = "redirect_uri"
+//        case authorities
+        case authorizationUserAgent = "authorization_user_agent"
+        case accountMode = "account_mode"
+    }
+}
+
+//// MARK: - Authority
+//struct Authority: Codable {
+//    let type: String
+//    let audience: Audience
+//    let authorityDefault: Bool
+//
+//    enum CodingKeys: String, CodingKey {
+//        case type, audience
+//        case authorityDefault = "default"
+//    }
+//}
+
+// MARK: - Audience
+struct Audience: Codable {
+    let type, tenantID: String
+
+    enum CodingKeys: String, CodingKey {
+        case type
+        case tenantID = "tenant_id"
+    }
 }

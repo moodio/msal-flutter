@@ -2,10 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:msal_flutter/models/audience.dart';
-import 'package:msal_flutter/models/authority.dart';
-import 'package:msal_flutter/models/authority_type.dart';
-import 'package:msal_flutter/models/microsfot_account.dart';
 import 'package:msal_flutter/msal_flutter.dart';
 
 void main() => runApp(MyApp());
@@ -16,10 +12,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static const String _authority =
-      "https://msalfluttertest.b2clogin.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu";
-  static const String _clientId = "5913dfb1-7576-451c-a7ea-a7c5a3f8682a";
-
   String _output = 'NONE';
 
   PublicClientApplication pca;
@@ -27,14 +19,10 @@ class _MyAppState extends State<MyApp> {
   Future<void> _acquireToken() async {
     if (pca == null) {
       pca = await PublicClientApplication.createPublicClientApplication(
-          "877c0662-a3da-40a3-ac5b-c72dee4b7b49",
-          "msauth://uk.co.moodio.msalFlutterV2/Q%2F0D7Tf8HlHBVBk3J0cSapmcwTA%3D",
-          authority: [
-            Authority(
-                type: AuthorityType.AAD,
-                audience: Audience(MicrosoftAccount.PersonalMicrosoftAccount,
-                    tenantID: "consumers"))
-          ]);
+        "877c0662-a3da-40a3-ac5b-c72dee4b7b49",
+        "msauth.uk.co.moodio.msalflutterr://auth",
+        authority: "https://login.microsoftonline.com/consumers",
+      );
     }
 
     String res;
@@ -60,14 +48,10 @@ class _MyAppState extends State<MyApp> {
   Future<void> _acquireTokenSilently() async {
     if (pca == null) {
       pca = await PublicClientApplication.createPublicClientApplication(
-          "877c0662-a3da-40a3-ac5b-c72dee4b7b49",
-          "msauth://uk.co.moodio.msalFlutterV2/Q%2F0D7Tf8HlHBVBk3J0cSapmcwTA%3D",
-          authority: [
-            Authority(
-                type: AuthorityType.AAD,
-                audience: Audience(MicrosoftAccount.PersonalMicrosoftAccount,
-                    tenantID: "consumers"))
-          ]);
+        "877c0662-a3da-40a3-ac5b-c72dee4b7b49",
+        "msauth.uk.co.moodio.msalflutterr://auth",
+        authority: "https://login.microsoftonline.com/consumers",
+      );
     }
 
     String res;
@@ -94,14 +78,10 @@ class _MyAppState extends State<MyApp> {
     print("called logout");
     if (pca == null) {
       pca = await PublicClientApplication.createPublicClientApplication(
-          "877c0662-a3da-40a3-ac5b-c72dee4b7b49",
-          "msauth://uk.co.moodio.msalFlutterV2/Q%2F0D7Tf8HlHBVBk3J0cSapmcwTA%3D",
-          authority: [
-            Authority(
-                type: AuthorityType.AAD,
-                audience: Audience(MicrosoftAccount.PersonalMicrosoftAccount,
-                    tenantID: "consumers"))
-          ]);
+        "877c0662-a3da-40a3-ac5b-c72dee4b7b49",
+        "msauth.uk.co.moodio.msalflutterr://auth",
+        authority: "https://login.microsoftonline.com/consumers",
+      );
     }
 
     print("pca is not null");

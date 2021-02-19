@@ -14,14 +14,12 @@ import 'msal_exception.dart';
 /// Represents a PublicClientApplication used to authenticate using the implicit flow
 class PublicClientApplication {
   static const MethodChannel _channel = const MethodChannel('msal_flutter');
-  // static const MethodChannel _channel = const MethodChannel('msal_flutter');
 
-  // String _clientId, _authority;
   String clientID;
 
   String redirectUri;
 
-  List<Authority> authority;
+  List<Authority> authorities;
 
   HttpConfiguration httpConfiguration;
 
@@ -38,6 +36,8 @@ class PublicClientApplication {
   String requiredBrokerProtocolVersion;
 
   String clientCapabilities;
+
+  String authority;
 
   bool webViewZoomControlsEnabled;
 
@@ -57,7 +57,8 @@ class PublicClientApplication {
   }
 
   PublicClientApplication._create(String clientID, String redirectUri,
-      {List<Authority> authority,
+      {List<Authority> authorities,
+      String authority,
       HttpConfiguration httpConfiguration,
       AuthorizationAgent authorizationAgent,
       LoggerConfiguration loggerConfiguration,
@@ -74,12 +75,13 @@ class PublicClientApplication {
     this.redirectUri = redirectUri;
     this.httpConfiguration = httpConfiguration;
     this.authorizationAgent = authorizationAgent;
-    this.authority = authority;
+    this.authorities = authorities;
     this.browserDescriptor = browserDescriptor;
     this.loggerConfiguration = loggerConfiguration;
     this.multipleCloudsSupported = multipleCloudsSupported;
     this.useBroker = useBroker;
     this.environment = environment;
+    this.authority = authority;
     this.requiredBrokerProtocolVersion = requiredBrokerProtocolVersion;
     this.clientCapabilities = clientCapabilities;
     this.webViewZoomControlsEnabled = webViewZoomControlsEnabled;
@@ -89,7 +91,8 @@ class PublicClientApplication {
 
   static Future<PublicClientApplication> createPublicClientApplication(
       String clientID, String redirectUri,
-      {List<Authority> authority,
+      {List<Authority> authorities,
+      String authority,
       HttpConfiguration httpConfiguration,
       AuthorizationAgent authorizationAgent = AuthorizationAgent.DEFAULT,
       LoggerConfiguration loggerConfiguration,
@@ -106,6 +109,7 @@ class PublicClientApplication {
         authorizationAgent: authorizationAgent,
         httpConfiguration: httpConfiguration,
         environment: environment,
+        authorities: authorities,
         authority: authority,
         browserDescriptor: browserDescriptor,
         clientCapabilities: clientCapabilities,
@@ -193,6 +197,7 @@ class PublicClientApplication {
     _getMSALConfiguration();
 
     res["jsonString"] = jsonString;
+    res["authority"] = authority;
 
     try {
       await _channel.invokeMethod('initialize', res);
@@ -214,10 +219,14 @@ class PublicClientApplication {
 
     jsonString.add("\"client_id\":" + "\"$clientID\"");
     jsonString.add("\"redirect_uri\":" + "\"$redirectUri\"");
-    _addJsonItem(authority, "\"authorities\":\n" + jsonEncode(authority));
-    _addJsonItem(httpConfiguration, "\"http\":" + jsonEncode(httpConfiguration));
-    _addJsonItem(authorizationAgent,
-        "\"authorization_user_agent\":" +   "\"${authorizationAgent.toString().split('.').last}\"");
+    _addJsonItem(authorities, "\"authorities\":\n" + jsonEncode(authorities));
+
+    _addJsonItem(
+        httpConfiguration, "\"http\":" + jsonEncode(httpConfiguration));
+    _addJsonItem(
+        authorizationAgent,
+        "\"authorization_user_agent\":" +
+            "\"${authorizationAgent.toString().split('.').last}\"");
 
     _addJsonItem(
         loggerConfiguration, "\"logging\":" + jsonEncode(loggerConfiguration));
@@ -232,7 +241,8 @@ class PublicClientApplication {
 
     _addJsonItem(
         requiredBrokerProtocolVersion,
-        "\"minimum_required_broker_protocol_version\":" + "$requiredBrokerProtocolVersion");
+        "\"minimum_required_broker_protocol_version\":" +
+            "$requiredBrokerProtocolVersion");
 
     _addJsonItem(clientCapabilities,
         "\"client_capabilities\":" + "\"$clientCapabilities\"");
@@ -251,15 +261,11 @@ class PublicClientApplication {
     jsonString.add("\"account_mode\": " + "\"MULTIPLE\"");
     _addJsonItem(browserDescriptor,
         "\"browser_safelist\":" + jsonEncode(browserDescriptor));
-
   }
-
-
 
   void _addJsonItem(Object object, String jsonItem) {
     if (object != null) {
       jsonString.add(jsonItem);
     }
   }
-
 }
