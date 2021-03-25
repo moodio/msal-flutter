@@ -1,23 +1,25 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
-import 'msal_exception.dart';
+import 'exceptions/msal_exceptions.dart';
 
 /// Represents a PublicClientApplication used to authenticate using the implicit flow
 class PublicClientApplication {
   static const MethodChannel _channel = const MethodChannel('msal_flutter');
 
-  String _clientId, _authority;
+  String _clientId, _authority, _redirectUri;
 
   /// Create a new PublicClientApplication authenticating as the given [clientId],
-  /// optionally against the selected [authority], defaulting to the common
+  /// optionally select a [authority], defaulting to the common
   PublicClientApplication(String clientId, {String authority}) {
     throw Exception(
         "Direct call is no longer supported in v1.0, please use static method createPublicClientApplication");
   }
 
-  PublicClientApplication._create(String clientId, {String authority}) {
+  PublicClientApplication._create(String clientId,
+      {String authority, String redirectUri}) {
     _clientId = clientId;
     _authority = authority;
+    _redirectUri = redirectUri;
   }
 
   static Future<PublicClientApplication> createPublicClientApplication(
@@ -32,7 +34,6 @@ class PublicClientApplication {
   Future<String> acquireToken(List<String> scopes) async {
     //create the arguments
     var res = <String, dynamic>{'scopes': scopes};
-
     //call platform
     try {
       final String token = await _channel.invokeMethod('acquireToken', res);
@@ -98,6 +99,10 @@ class PublicClientApplication {
     //if authority has been set, add it aswell
     if (this._authority != null) {
       res["authority"] = this._authority;
+    }
+
+    if (this._redirectUri != null) {
+      res["redirectUri"] = this._redirectUri;
     }
 
     try {

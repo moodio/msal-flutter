@@ -1,10 +1,14 @@
 package uk.co.moodio.msal_flutter
 
 import android.app.Activity
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.annotation.NonNull
 import androidx.annotation.WorkerThread
+
+import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -17,22 +21,17 @@ import com.microsoft.identity.client.PublicClientApplicationConfigurationFactory
 
 
 @Suppress("SpellCheckingInspection")
-class MsalFlutterPlugin: MethodCallHandler {
+class MsalFlutterPlugin: FlutterPlugin, MethodCallHandler {
+    
+    private lateinit var channel : MethodChannel
+    private lateinit var context : Context
+    private lateinit var msalApp: IMultipleAccountPublicClientApplication
+
+    private fun isClientInitialized() = ::msalApp.isInitialized
+
+
     companion object
     {
-        lateinit var mainActivity : Activity
-        lateinit var msalApp: IMultipleAccountPublicClientApplication
-
-        fun isClientInitialized() = ::msalApp.isInitialized
-
-        @JvmStatic
-        fun registerWith(registrar: Registrar) {
-            Log.d("MsalFlutter","Registering plugin")
-            val channel = MethodChannel(registrar.messenger(), "msal_flutter")
-            channel.setMethodCallHandler(MsalFlutterPlugin())
-            mainActivity = registrar.activity()
-        }
-
         fun getAuthCallback(result: Result) : AuthenticationCallback
         {
             Log.d("MsalFlutter", "Getting the auth callback object")
@@ -82,20 +81,28 @@ class MsalFlutterPlugin: MethodCallHandler {
         }
     }
 
-    override fun onMethodCall(call: MethodCall, result: Result)
+
+    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "msal_flutter")
+        channel.setMethodCallHandler(this)
+        context = flutterPluginBinding.getApplicationContext();
+    }
+
+    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
+    }
+
+    override fun onMethodCall(@NonNull call: MethodCall, result: Result)
     {
         val scopesArg : ArrayList<String>? = call.argument("scopes")
         val scopes: Array<String>? = scopesArg?.toTypedArray()
         val clientId : String? = call.argument("clientId")
         val authority : String? = call.argument("authority")
-
-        Log.d("MsalFlutter","Got scopes: $scopes")
-        Log.d("MsalFlutter","Got cleintId: $clientId")
-        Log.d("MsalFlutter","Got authority: $authority")
+        val redirectUri : String? = call.argument("redirectUri")
 
         when(call.method){
             "logout" -> Thread(Runnable{logout(result)}).start()
-            "initialize" -> initialize(clientId, authority, result)
+            "initialize" -> initialize(clientId, authority, redirectUri, result)
             "acquireToken" -> Thread(Runnable {acquireToken(scopes, result)}).start()
             "acquireTokenSilent" -> Thread(Runnable {acquireTokenSilent(scopes, result)}).start()
             else -> result.notImplemented()
