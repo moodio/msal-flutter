@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'msal_exception.dart';
 
@@ -25,6 +28,7 @@ class PublicClientApplication {
       {String authority}) async {
     var res = PublicClientApplication._create(clientId, authority: authority);
     await res._initialize();
+
     return res;
   }
 
@@ -49,8 +53,10 @@ class PublicClientApplication {
 
     //call platform
     try {
-      final String token =
-          await _channel.invokeMethod('acquireTokenSilent', res);
+      if (Platform.isAndroid) {
+        await _channel.invokeMethod('loadAccounts');
+      }
+      final String token = await _channel.invokeMethod('acquireTokenSilent', res);
       return token;
     } on PlatformException catch (e) {
       throw _convertException(e);
@@ -59,6 +65,9 @@ class PublicClientApplication {
 
   Future logout() async {
     try {
+      if (Platform.isAndroid) {
+        await _channel.invokeMethod('loadAccounts');
+      }
       await _channel.invokeMethod('logout', <String, dynamic>{});
     } on PlatformException catch (e) {
       throw _convertException(e);
@@ -103,6 +112,7 @@ class PublicClientApplication {
     try {
       await _channel.invokeMethod('initialize', res);
     } on PlatformException catch (e) {
+      debugPrint("MSAL--> ${e.message} --> ${e.code}");
       throw _convertException(e);
     }
   }

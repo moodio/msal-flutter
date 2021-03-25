@@ -1,4 +1,4 @@
-## 1.0.0+2
+# 1.0.0+2
 * Updates to readme in regards to kotlin static field issues.
 ## 1.0.0+1
 * Added some more information to readme for clarity

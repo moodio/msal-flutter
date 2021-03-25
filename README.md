@@ -11,7 +11,7 @@ e.g. `https://msalfluttertest.b2clogin.com/tfp/msalfluttertest.onmicrosoft.com/B
 
 For troubleshooting known bugs in the new build, please scroll down to the bottom of the page where all bugs and fixes we find will be noted.
 
-# MSAL Wrapper Library for Flutter
+## MSAL Wrapper Library for Flutter
 Please note this product is in very early alpha release and subject to change and bugs.
 
 The Microsoft Authentication Library Flutter Wrapper is a wrapper that uses that MSAL libraries for Android and IOS. Currently only the public client application functionality is supported, using the implicit workflow. 
@@ -40,6 +40,7 @@ This section is mostly copied and modified from [the official android MSAL libra
 ```
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
 ```
 
 2. In your AndroidManifest.xml file add the following intent filter, replacing the placeholder \<YOUR-CLIENT-ID\> for your azure b2c application's client id where indicated below. 
@@ -56,6 +57,7 @@ The default redirect url is msal\<YOUR-CLIENT-ID\>://auth however this can now b
             android:host="auth" />
     </intent-filter>
 </activity>
+
 ```
 
 3. Copy the [msal_default_config](https://raw.githubusercontent.com/moodio/msal-flutter/master/doc/templates/msal_default_config.json) from this repository (or make your own if you know what you're doing) and place it into your flutter apps android/src/main/res/raw folder.
@@ -83,6 +85,7 @@ This section is mostly copied and modified from Step 1 from [the official iOS MS
         </array>
     </dict>
 </array>
+
 ```
 
 2. Add LSApplicationQueriesSchemes to allow making call to Microsoft Authenticator if installed (For Authentication broker)
@@ -93,6 +96,7 @@ This section is mostly copied and modified from Step 1 from [the official iOS MS
 	<string>msauthv2</string>
 	<string>msauthv3</string>
 </array>
+
 ```
 
 3. Open the app's iOS project in xcode, click on the Runner app to open up the configuration, and under capabilities, expand Keychain Sharing and add the keychain group `com.microsoft.adalcache`
@@ -146,6 +150,7 @@ try{
 } on MsalException {
     //error handling logic here
 }
+
 ```
 
 4. Once a user has logged in atleast once, to retrieve a token silently call the acquireTokenSilent function, passing the scopes you wish to acquire the token for. Note that this function will throw an error on failure and should be surrounded by a try catch block as per the example below
@@ -187,6 +192,9 @@ try{
 
 # Trouble Shooting
 
-Please note there is currently an issue that seems to occur with Android which uses slightly older versions of kotlin.
-If you get the error when attemtping to acquire a token, along the lines of "static member msalApp not found", goto your app's android folder, open the build.gradle file, and on the second line change the version of kotlin from 1.3.10 to 1.3.50. For more information take a look at issue #4.
+Please note there is currently an issue that seems to occur with Android which uses slightly older
+ versions of kotlin.
+If you get the error when attemtping to acquire a token, along the lines of "static member msalApp 
+not found", goto your app's android folder, open the build.gradle file, and on the second line 
+change the version of kotlin from 1.3.10 to 1.3.50. For more information take a look at issue #4.
 A fix will be implemented shortly.
