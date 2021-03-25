@@ -4,8 +4,7 @@ version: 2.0.0-alpha.1
 homepage: https://github.com/moodio/msal-flutter
 repository: https://github.com/moodio/msal-flutter
 environment:
-  sdk: ">=2.1.0 <3.0.0"
-  flutter: ">=1.12.13+hotfix.5"
+  sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
   flutter:

@@ -24,14 +24,17 @@ class PublicClientApplication {
 
   static Future<PublicClientApplication> createPublicClientApplication(
       String clientId,
-      {String authority}) async {
-    var res = PublicClientApplication._create(clientId, authority: authority);
+      {String authority,
+      String redirectUri}) async {
+    var res = PublicClientApplication._create(clientId,
+        authority: authority, redirectUri: redirectUri);
     await res._initialize();
     return res;
   }
 
   /// Acquire a token interactively for the given [scopes]
   Future<String> acquireToken(List<String> scopes) async {
+    print("Called acquiretoken");
     //create the arguments
     var res = <String, dynamic>{'scopes': scopes};
     //call platform

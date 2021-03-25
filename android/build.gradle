@@ -18,12 +18,14 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
+        maven {
+            url 'https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1'
+        }
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 29
@@ -33,7 +35,6 @@ android {
     }
     defaultConfig {
         minSdkVersion 21
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
         disable 'InvalidPackage'
