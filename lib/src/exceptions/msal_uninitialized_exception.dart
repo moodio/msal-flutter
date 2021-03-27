@@ -1,4 +1,4 @@
-import 'MsalException.dart';
+import 'msal_exception.dart';
 
 class MsalUninitializedException extends MsalException {
   MsalUninitializedException()

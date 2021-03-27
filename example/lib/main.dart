@@ -12,17 +12,20 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   static const String _authority =
-      "https://msalfluttertest.b2clogin.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu";
-  static const String _redirectUri = "msale8388383834://auth";
-  static const String _clientId = "5913dfb1-7576-451c-a7ea-a7c5a3f8682a";
+      "https://msalfluttertest.b2clogin.com/msalfluttertest.onmicrosoft.com/B2C_1_phonesisu";
+  static const String _redirectUri =
+      "msalc3aab3bb-dd2e-4bb5-8768-38f032570a71://auth";
+  static const String _clientId = "c3aab3bb-dd2e-4bb5-8768-38f032570a71";
 
   String _output = 'NONE';
 
   PublicClientApplication pca;
 
   Future<void> _acquireToken() async {
+    print("called acquiretoken");
     //create the PCA if not already created
     if (pca == null) {
+      print("creating pca...");
       pca = await PublicClientApplication.createPublicClientApplication(
           _clientId,
           authority: _authority,
@@ -33,9 +36,9 @@ class _MyAppState extends State<MyApp> {
 
     String res;
     try {
-      res = await pca.acquireToken([
-        "https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"
-      ]);
+      res = await pca.acquireToken(
+          ["https://msalfluttertest.onmicrosoft.com/msaltesterapi/All"]);
+      print(res);
     } on MsalUserCancelledException {
       res = "User cancelled";
     } on MsalNoAccountException {
@@ -53,31 +56,35 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  // Future<void> _acquireTokenSilently() async {
-  //   if(pca == null){
-  //     pca = await PublicClientApplication.createPublicClientApplication(_clientId, authority: _authority);
-  //   }
+  Future<void> _acquireTokenSilently() async {
+    if (pca == null) {
+      print("initializing pca");
+      pca = await PublicClientApplication.createPublicClientApplication(
+          _clientId,
+          redirectUri: _redirectUri,
+          authority: _authority);
+    }
 
-  //   String res;
-  //   try
-  //   {
-  //     res = await pca.acquireTokenSilent(["https://msalfluttertest.onmicrosoft.com/msalbackend/user_impersonation"]);
-  //   } on MsalUserCancelledException {
-  //     res = "User cancelled";
-  //   } on MsalNoAccountException {
-  //     res = "no account";
-  //   } on MsalInvalidConfigurationException {
-  //     res = "invalid config";
-  //   } on MsalInvalidScopeException {
-  //     res = "Invalid scope";
-  //   }on MsalException {
-  //     res = "Error getting token silently!";
-  //   }
+    String res;
+    try {
+      res = await pca.acquireTokenSilent(
+          ["https://msalfluttertest.onmicrosoft.com/msaltesterapi/All"]);
+    } on MsalUserCancelledException {
+      res = "User cancelled";
+    } on MsalNoAccountException {
+      res = "no account";
+    } on MsalInvalidConfigurationException {
+      res = "invalid config";
+    } on MsalInvalidScopeException {
+      res = "Invalid scope";
+    } on MsalException {
+      res = "Error getting token silently!";
+    }
 
-  //   setState(() {
-  //     _output = res;
-  //   });
-  // }
+    setState(() {
+      _output = res;
+    });
+  }
 
   // Future _logout() async {
   //   print("called logout");
@@ -117,7 +124,7 @@ class _MyAppState extends State<MyApp> {
                 child: Text('AcquireToken()'),
               ),
               RaisedButton(
-                  onPressed: () => {}, // _acquireTokenSilently,
+                  onPressed: _acquireTokenSilently,
                   child: Text('AcquireTokenSilently()')),
               RaisedButton(
                   onPressed: () => {}, //_logout,

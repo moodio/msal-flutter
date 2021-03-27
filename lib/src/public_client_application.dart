@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:flutter/services.dart';
+import 'package:msal_flutter/src/exceptions/msal_scope_error_exception.dart';
 import 'exceptions/msal_exceptions.dart';
 
 /// Represents a PublicClientApplication used to authenticate using the implicit flow
@@ -22,10 +24,25 @@ class PublicClientApplication {
     _redirectUri = redirectUri;
   }
 
+  ///
+  /// @param clientId The id of the client, as registered in Azure AD
+  /// @param authority The authority to authenticate against
+  /// @param redirectUri The redirect uri registered for your application for all platforms
+  /// @param androidRedirectUri Override for android specific redirectUri
+  /// @param iosRedirectUri Override for iOS specific redirectUri
   static Future<PublicClientApplication> createPublicClientApplication(
       String clientId,
       {String authority,
-      String redirectUri}) async {
+      String redirectUri,
+      String androidRedirectUri,
+      String iosRedirectUri}) async {
+    //set the correct redirect uri based on platform
+    if (Platform.isAndroid && androidRedirectUri != null) {
+      redirectUri = androidRedirectUri;
+    } else if (Platform.isIOS && iosRedirectUri != null) {
+      redirectUri = iosRedirectUri;
+    }
+
     var res = PublicClientApplication._create(clientId,
         authority: authority, redirectUri: redirectUri);
     await res._initialize();
@@ -90,6 +107,8 @@ class PublicClientApplication {
         return MsalChangedClientIdException();
       case "INIT_ERROR":
         return MsalInitializationException();
+      case "SCOPE_ERROR":
+        return MsalScopeErrorException();
       case "AUTH_ERROR":
       default:
         return MsalException("Authentication error");
