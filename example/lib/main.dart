@@ -12,7 +12,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   static const String _authority =
-      "https://msalfluttertest.b2clogin.com/msalfluttertest.onmicrosoft.com/B2C_1_phonesisu";
+      "https://msalfluttertest.b2clogin.com/tfp/3fab2993-1fec-4a8c-a6d8-2bfea01e64ea/B2C_1_phonesisu";
   static const String _redirectUri =
       "msalc3aab3bb-dd2e-4bb5-8768-38f032570a71://auth";
   static const String _clientId = "c3aab3bb-dd2e-4bb5-8768-38f032570a71";
@@ -80,6 +80,9 @@ class _MyAppState extends State<MyApp> {
     } on MsalException {
       res = "Error getting token silently!";
     }
+
+    print("Got token");
+    print(res);
 
     setState(() {
       _output = res;

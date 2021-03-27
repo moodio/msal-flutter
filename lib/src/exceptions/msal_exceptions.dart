@@ -5,4 +5,5 @@ export 'msal_invalid_configuration_exception.dart';
 export 'msal_invalid_scope_exception.dart';
 export 'msal_no_account_exception.dart';
 export 'msal_uninitialized_exception.dart';
-export 'msal_iser_cancelled_exception.dart';
+export 'msal_user_cancelled_exception.dart';
+export 'msal_invalid_request_exception.dart';

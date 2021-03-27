@@ -8,7 +8,9 @@ import 'exceptions/msal_exceptions.dart';
 class PublicClientApplication {
   static const MethodChannel _channel = const MethodChannel('msal_flutter');
 
-  String _clientId, _authority, _redirectUri;
+  String _clientId;
+  String? _authority;
+  String? _redirectUri;
 
   /// Create a new PublicClientApplication authenticating as the given [clientId],
   /// optionally select a [authority], defaulting to the common
@@ -51,7 +53,6 @@ class PublicClientApplication {
 
   /// Acquire a token interactively for the given [scopes]
   Future<String> acquireToken(List<String> scopes) async {
-    print("Called acquiretoken");
     //create the arguments
     var res = <String, dynamic>{'scopes': scopes};
     //call platform
@@ -98,6 +99,8 @@ class PublicClientApplication {
         return MsalInvalidConfigurationException("Client Id not set");
       case "INVALID_AUTHORITY":
         return MsalInvalidConfigurationException("Invalid authroity set.");
+      case "INVALID_REQUEST":
+        return MsalInvalidRequestException("Invalid request");
       case "CONFIG_ERROR":
         return MsalInvalidConfigurationException(
             "Invalid configuration, please correct your settings and try again");
@@ -110,6 +113,7 @@ class PublicClientApplication {
       case "SCOPE_ERROR":
         return MsalScopeErrorException();
       case "AUTH_ERROR":
+      case "UNKNOWN":
       default:
         return MsalException("Authentication error");
     }

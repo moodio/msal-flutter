@@ -16,6 +16,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import java.lang.Exception
 
 @Suppress("SpellCheckingInspection")
 class MsalFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -48,16 +49,8 @@ class MsalFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 Log.d("MsalFlutter",exception.message ?: "No exception message")
                 Log.d("MsalFlutter", exception.stackTraceToString())
 
-                //get auth error
-                val errorCode : String = when(exception.errorCode){
-                    "declined_scope_error" -> "SCOPE_ERROR"
-                    else -> "AUTH_ERROR"
-                }
+                handleMsalException(exception, result)
 
-                //return result
-                Handler(Looper.getMainLooper()).post {
-                    result.error(errorCode, "Authentication failed", exception.localizedMessage)
-                }
             }
 
             override fun onCancel(){
@@ -74,17 +67,22 @@ class MsalFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         return object : IPublicClientApplication.ApplicationCreatedListener
         {
             override fun onCreated(application: IPublicClientApplication) {
-                Log.d("MsalFlutter", "Created successfully")
                 msalApp = application as MultipleAccountPublicClientApplication
-                result.success(true)
+                Handler(Looper.getMainLooper()).post {
+                    result.success(true)
+                }
             }
 
             override fun onError(exception: MsalException?) {
                 Log.d("MsalFlutter", "Initialize error")
                 if(exception != null){
-                    Log.d("MsalFlutter", exception.errorCode)
+                    handleMsalException(exception, result)
+                }else {
+                    Log.d("MsalFlutter","Error thrown without exception")
+                    Handler(Looper.getMainLooper()).post {
+                        result.error("INIT_ERROR", "Error initializting client", exception?.localizedMessage)
+                    }
                 }
-                result.error("INIT_ERROR", "Error initializting client", exception?.localizedMessage)
             }
         }
     }
@@ -159,7 +157,16 @@ class MsalFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
         //acquire the token
-        msalApp.acquireToken(activity, scopes, getAuthCallback(result))
+        try {
+            msalApp.acquireToken(activity, scopes, getAuthCallback(result))
+        }catch(e: MsalException){
+            handleMsalException(e, result)
+        }catch(e: Throwable){
+            Log.d("MsalFlutter", "Throwable thrown");
+            Handler(Looper.getMainLooper()).post {
+                result.error("UNKNOWN", "An unknown error occured.", e.localizedMessage)
+            }
+        }
     }
 
     private fun acquireTokenSilent(scopes: Array<String>?, result: Result)
@@ -193,9 +200,18 @@ class MsalFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
         //acquire the token and return the result
-        val res = msalApp.acquireTokenSilent(scopes, accounts[0], msalApp.configuration.defaultAuthority.authorityURL.toString())
-        Handler(Looper.getMainLooper()).post {
-            result.success(res.accessToken)
+        try {
+            val res = msalApp.acquireTokenSilent(scopes, accounts[0], msalApp.configuration.defaultAuthority.authorityURL.toString())
+            Handler(Looper.getMainLooper()).post {
+                result.success(res.accessToken)
+            }
+        } catch(e: MsalException){
+            handleMsalException(e, result)
+        }catch(e: Throwable){
+            Log.d("MsalFlutter", "Throwable thrown");
+            Handler(Looper.getMainLooper()).post {
+                result.error("UNKNOWN", "An unknown error occured.", e.localizedMessage)
+            }
         }
     }
 
@@ -205,8 +221,8 @@ class MsalFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 
-   private fun initialize(clientId: String?, authority: String?, redirectUri: String?, result: Result)
-   {
+    private fun initialize(clientId: String?, authority: String?, redirectUri: String?, result: Result)
+    {
        //ensure clientid provided
        if(clientId == null){
            Log.d("MsalFlutter", "error no clientId")
@@ -216,7 +232,6 @@ class MsalFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
        //if already initialized, ensure clientid hasn't changed
        if(isClientInitialized()){
-           Log.d("MsalFlutter", "Client already initialized.")
            if(msalApp.configuration.clientId == clientId)
            {
                result.success(true)
@@ -225,16 +240,17 @@ class MsalFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
            }
        }
 
-       Log.d("MsalFlutter", "Logging in with $clientId  to $authority with redirectUri $redirectUri")
 
-       PublicClientApplication.create(context, clientId, authority, redirectUri?: getRedirectUri(), getApplicationCreatedListener(result))
-
-       Log.d("MsalFlutter", "Client created")
+       try {
+           PublicClientApplication.create(context, clientId, authority, redirectUri
+                   ?: getRedirectUri(), getApplicationCreatedListener(result))
+       } catch (e: Throwable){
+           Log.d("MsalFlutter", "Exception thrown");
+           Handler(Looper.getMainLooper()).post {
+               result.error("UNKNOWN", "Unknown error occurred.", e.localizedMessage)
+           }
+       }
    }
-
-//    private fun getDefaultAuthority() : String{
-//
-//    }
 
     private fun getRedirectUri() : String{
         return "msauth://${context.packageName}/auth"
@@ -245,6 +261,24 @@ class MsalFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         clearAccounts()
         Handler(Looper.getMainLooper()).post {
             result.success(true)
+        }
+    }
+
+    // converts an azure ad error code to a msal flutter one, and returns error
+    private fun handleMsalException(exception: MsalException, result: Result){
+
+        val errorCode : String = when(exception.errorCode){
+            "access_denied" -> "CANCELLED"
+            "declined_scope_error" -> "SCOPE_ERROR"
+            "invalid_request" -> "INVALID_REQUEST"
+            "unknown_authority" -> "INVALID_AUTHORITY"
+            "unknown_error" -> "UNKNOWN"
+            else -> "AUTH_ERROR"
+        }
+
+        //return result
+        Handler(Looper.getMainLooper()).post {
+            result.error(errorCode, "Authentication failed", exception.localizedMessage)
         }
     }
 }
