@@ -1,3 +1,5 @@
+# Project moved
+This project has been moved to [https://github.com/Muljin/msal-flutter](https://github.com/Muljin/msal-flutter)
 ## UPDATES IN PROGRESS
 Please note updates are currently in progress. We are not currently accepting any PRs.
 
