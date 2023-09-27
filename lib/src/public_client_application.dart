@@ -6,7 +6,7 @@ import 'msal_exception.dart';
 class PublicClientApplication {
   static const MethodChannel _channel = const MethodChannel('msal_flutter');
 
-  String _clientId, _authority;
+  String _clientId, _authority, _redirectURI;
 
   /// Create a new PublicClientApplication authenticating as the given [clientId],
   /// optionally against the selected [authority], defaulting to the common
@@ -15,15 +15,16 @@ class PublicClientApplication {
         "Direct call is no longer supported in v1.0, please use static method createPublicClientApplication");
   }
 
-  PublicClientApplication._create(String clientId, {String authority}) {
+  PublicClientApplication._create(String clientId, {String authority, String redirectURI}) {
     _clientId = clientId;
     _authority = authority;
+    _redirectURI = redirectURI;
   }
 
   static Future<PublicClientApplication> createPublicClientApplication(
       String clientId,
-      {String authority}) async {
-    var res = PublicClientApplication._create(clientId, authority: authority);
+      {String authority, String redirectURI}) async {
+    var res = PublicClientApplication._create(clientId, authority: authority, redirectURI: redirectURI);
     await res._initialize();
     return res;
   }
@@ -98,6 +99,9 @@ class PublicClientApplication {
     //if authority has been set, add it aswell
     if (this._authority != null) {
       res["authority"] = this._authority;
+    }
+    if (this._redirectURI != null) {
+      res["redirectURI"] = this._redirectURI;
     }
 
     try {
