@@ -12,17 +12,18 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  
+
   static const String _authority = "https://msalfluttertest.b2clogin.com/tfp/msalfluttertest.onmicrosoft.com/B2C_1_sisu";
   static const String _clientId = "5913dfb1-7576-451c-a7ea-a7c5a3f8682a";
-  
+  static const String _redirectUrl = "msauth://com.example.msal/PbN3nCasHqLUVarghPLaQWerTYU%3D";
+
   String _output = 'NONE';
 
   PublicClientApplication pca;
 
   Future<void> _acquireToken() async{
     if(pca == null){
-      pca = await PublicClientApplication.createPublicClientApplication(_clientId, authority: _authority);
+      pca = await PublicClientApplication.createPublicClientApplication(_clientId, _redirectUrl, authority: _authority);
     }
 
     String res;
@@ -47,9 +48,9 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _acquireTokenSilently() async {
     if(pca == null){
-      pca = await PublicClientApplication.createPublicClientApplication(_clientId, authority: _authority);
+      pca = await PublicClientApplication.createPublicClientApplication(_clientId, _redirectUrl, authority: _authority);
     }
-    
+
     String res;
     try
     {
@@ -74,7 +75,7 @@ class _MyAppState extends State<MyApp> {
   Future _logout() async {
     print("called logout");
     if(pca == null){
-      pca = await PublicClientApplication.createPublicClientApplication(_clientId, authority: _authority);
+      pca = await PublicClientApplication.createPublicClientApplication(_clientId, _redirectUrl, authority: _authority);
     }
 
     print("pca is not null");
@@ -104,7 +105,7 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: Column(
             children: <Widget>[
-              RaisedButton( onPressed: _acquireToken, 
+              RaisedButton( onPressed: _acquireToken,
                 child: Text('AcquireToken()'),),
               RaisedButton( onPressed: _acquireTokenSilently,
                 child: Text('AcquireTokenSilently()')),
